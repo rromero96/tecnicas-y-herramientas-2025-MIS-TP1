@@ -1,5 +1,5 @@
 class Reserva {
-    constructor(nombre, experiencia, plazoLimite, fecha, descuentoGrupal, isGrupo,precio) {
+    constructor(nombre, experiencia, fecha, descuentoGrupal, isGrupo,precio) {
         if (!(experiencia instanceof ExperienciaTuristica)) {
             throw new Error("El atributo 'experiencia' debe ser una instancia de ExperienciaTuristica o sus clases derivadas.");
         }
