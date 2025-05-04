@@ -1,5 +1,4 @@
-
-class ExperienciaTuristica {
+export class ExperienciaTuristica {
     constructor(fechas, precio, capacidadMaxima, duracion, requiereGuia) {
         if (new.target === ExperienciaTuristica) {
             throw new Error("ExperienciaTuristica es una clase abstracta y no puede ser instanciada directamente.");
@@ -28,7 +27,7 @@ class ExperienciaTuristica {
     }
 
     GetPrecioTotal(){
-        return this.PrecioTotal
+        return this.precioTotal
     }
 
     GetCapacidadMaxima(){
@@ -78,10 +77,10 @@ class ExperienciaTuristica {
         }
     }
 
-    GetListaEspera(fecha){
+    GetListaEspera(fecha) {
         const fechaBuscada = new Date(fecha);
 
-        const esperaFecha = this.listaEspera.find(
+        const esperaFecha = this.listaDeEspera.find(
             r => r.fecha.getTime() === fechaBuscada.getTime()
         );
 
@@ -128,7 +127,7 @@ class ExperienciaTuristica {
     }
 }
 
-class ExcursionGuiada extends ExperienciaTuristica {
+export class ExcursionGuiada extends ExperienciaTuristica {
     constructor(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, guia) {
         super(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia)
         this.guias = guia // numero de guias 
@@ -139,20 +138,26 @@ class ExcursionGuiada extends ExperienciaTuristica {
     }
 
     GetDisponibilidad(fecha) {
-        const fecha = new Date(fecha)
-        if (isNaN(fecha)) {
-            console.log("La fecha proporcionada no es válida")
-            return false
+        const fechaBuscada = new Date(fecha);
+        if (isNaN(fechaBuscada)) {
+            console.log("La fecha proporcionada no es válida");
+            return false;
         }
-        for (let i = 0; i < this.disponibilidad.length; i++) {
-            let fechaDisponible = new Date(this.disponibilidad[i])
-            return fechaDisponible.getTime() === fecha.getTime() && this.listaReservas[i].reservas.length < this.capacidadMaxima
+
+        const fechaIndex = this.disponibilidad.findIndex(f => {
+            const fechaDisponible = new Date(f);
+            return fechaDisponible.getTime() === fechaBuscada.getTime();
+        });
+
+        if (fechaIndex === -1) {
+            return false;
         }
-        return false
+
+        return this.listaReservas[fechaIndex].reservas.length < this.capacidadMaxima;
     }
 }
 
-class PaqueteDeAventura extends ExperienciaTuristica {
+export class PaqueteDeAventura extends ExperienciaTuristica {
     constructor(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, actividades) {
         super(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia)
         this.actividades =  actividades // objeto => [{nombre: "nombre de la actividad", disponibilidad:["01/01/2025"]}]
@@ -162,20 +167,29 @@ class PaqueteDeAventura extends ExperienciaTuristica {
         return this.actividades.map(actividad => actividad.nombre)
     }
 
-    GetDisponibilidad(fecha){
-        const fechaBuscada = new Date(fecha)
-        if (isNaN(fecha)) {
-            console.log("La fecha proporcionada no es válida")
-            return false
+    GetDisponibilidad(fecha) {
+        const fechaBuscada = new Date(fecha);
+        if (isNaN(fechaBuscada)) {
+            console.log("La fecha proporcionada no es válida");
+            return false;
         }
-        
-        const estaDiponible = this.actividades.every(actividad => {
+
+        const fechaIndex = this.disponibilidad.findIndex(f => {
+            const fechaDisponible = new Date(f);
+            return fechaDisponible.getTime() === fechaBuscada.getTime();
+        });
+
+        if (fechaIndex === -1) {
+            return false;
+        }
+
+        const estaDisponible = this.actividades.every(actividad => {
             return actividad.disponibilidad.some(fechaDisponible => {
                 const fechaDisponibleObj = new Date(fechaDisponible);
-                return fechaDisponibleObj.getTime() === fechaBuscada.getTime() && this.listaReservas[i].reservas.length < this.capacidadMaxima
+                return fechaDisponibleObj.getTime() === fechaBuscada.getTime();
             });
         });
-    
-        return estaDiponible
+
+        return estaDisponible && this.listaReservas[fechaIndex].reservas.length < this.capacidadMaxima;
     }  
 }

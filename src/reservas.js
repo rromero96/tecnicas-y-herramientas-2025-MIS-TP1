@@ -1,17 +1,19 @@
-class Reserva {
-    constructor(nombre, experiencia, fecha, descuentoGrupal, isGrupo,precio) {
+import { ExperienciaTuristica } from './experiencias.js';
+
+export class Reserva {
+    constructor(nombre, experiencia, plazoLimite, fecha, descuentoGrupal, isGrupo, precio) {
         if (!(experiencia instanceof ExperienciaTuristica)) {
             throw new Error("El atributo 'experiencia' debe ser una instancia de ExperienciaTuristica o sus clases derivadas.");
         }
-        this.nombre = nombre
-        this.experiencia = experiencia
-        this.fecha = fecha 
-        this.fechaReserva = new Date()
-        this.descuentoGrupal = descuentoGrupal // int
-        this.tarifaReserva =  (precio * (1 - (descuentoGrupal / 100))) * 0.3
-        this.isGrupo = isGrupo
-        this.pago = false
-
+        this.nombre = nombre;
+        this.experiencia = experiencia;
+        this.fecha = fecha;
+        this.fechaReserva = new Date();
+        this.descuentoGrupal = descuentoGrupal;
+        this.tarifaReserva = (precio * (1 - (descuentoGrupal / 100))) * 0.3;
+        this.isGrupo = isGrupo;
+        this.pago = false;
+        this.plazoLimite = plazoLimite;
     }
 
     Confirmar(){
@@ -57,16 +59,30 @@ class Reserva {
         }
     }
 
-    AgregarListaEspera(){
+    AgregarListaEspera() {
         if (this.experiencia.GetDisponibilidad(this.fecha)) {
             throw new Error("La fecha está disponible para la reserva, no es necesario agregar a la lista de espera.");
         }
 
         try {
-            this.experiencia.AddListaEspera(this.fecha, this.nombre);
+            const fechaBuscada = new Date(this.fecha);
+            const esperaFecha = this.experiencia.listaDeEspera.find(
+                r => r.fecha.getTime() === fechaBuscada.getTime()
+            );
+
+            if (!esperaFecha) {
+                this.experiencia.listaDeEspera.push({
+                    fecha: fechaBuscada,
+                    reservas: [this.nombre]
+                });
+            } else {
+                esperaFecha.reservas.push(this.nombre);
+            }
+            
             console.log(`Agregado a la lista de espera para ${this.nombre} en la fecha ${this.fecha}.`);
         } catch (error) {
             console.error(`Error al agregar a la lista de espera: ${error.message}`);
+            throw error;
         }
     }
 
