@@ -21,6 +21,10 @@ export class ExperienciaTuristica {
     GetDisponibilidad(fecha){
        throw new Error("El método 'Disponibilidad' debe ser implementado por la clase hija.");
     }
+    
+    AgregarFechaEnDisponibilidad(fecha){
+        throw new Error("El método 'AgregarDisponibilidad' debe ser implementado por la clase hija.");
+    }
 
     RequiereGuia(){
         return this.requiereGuia
@@ -125,71 +129,20 @@ export class ExperienciaTuristica {
             throw new Error("El nombre no se encuentra en la lista de espera.");
         }
     }
-}
 
-export class ExcursionGuiada extends ExperienciaTuristica {
-    constructor(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, guia) {
-        super(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia)
-        this.guias = guia // numero de guias 
-    }
-
-    GetGuias() {
-        return this.guias // si no hay guias, no se puede realizar la reserva
-    }
-
-    GetDisponibilidad(fecha) {
+    agregarFechaEnListaReservas(fecha) {
         const fechaBuscada = new Date(fecha);
-        if (isNaN(fechaBuscada)) {
-            console.log("La fecha proporcionada no es válida");
-            return false;
-        }
-
-        const fechaIndex = this.disponibilidad.findIndex(f => {
-            const fechaDisponible = new Date(f);
-            return fechaDisponible.getTime() === fechaBuscada.getTime();
+        this.listaReservas.push({
+            fecha: fechaBuscada,
+            reservas: []
         });
-
-        if (fechaIndex === -1) {
-            return false;
-        }
-
-        return this.listaReservas[fechaIndex].reservas.length < this.capacidadMaxima;
-    }
-}
-
-export class PaqueteDeAventura extends ExperienciaTuristica {
-    constructor(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, actividades) {
-        super(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia)
-        this.actividades =  actividades // objeto => [{nombre: "nombre de la actividad", disponibilidad:["01/01/2025"]}]
     }
 
-    GetActividades() {
-        return this.actividades.map(actividad => actividad.nombre)
-    }
-
-    GetDisponibilidad(fecha) {
+    agregarFechaEnListaEspera(fecha) {
         const fechaBuscada = new Date(fecha);
-        if (isNaN(fechaBuscada)) {
-            console.log("La fecha proporcionada no es válida");
-            return false;
-        }
-
-        const fechaIndex = this.disponibilidad.findIndex(f => {
-            const fechaDisponible = new Date(f);
-            return fechaDisponible.getTime() === fechaBuscada.getTime();
+        this.listaDeEspera.push({
+            fecha: fechaBuscada,
+            reservas: []
         });
-
-        if (fechaIndex === -1) {
-            return false;
-        }
-
-        const estaDisponible = this.actividades.every(actividad => {
-            return actividad.disponibilidad.some(fechaDisponible => {
-                const fechaDisponibleObj = new Date(fechaDisponible);
-                return fechaDisponibleObj.getTime() === fechaBuscada.getTime();
-            });
-        });
-
-        return estaDisponible && this.listaReservas[fechaIndex].reservas.length < this.capacidadMaxima;
-    }  
+    }
 }

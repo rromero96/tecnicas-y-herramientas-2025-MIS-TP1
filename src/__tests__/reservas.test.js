@@ -1,5 +1,5 @@
 import { Facturacion } from '../facturacion.js';
-import { ExcursionGuiada } from '../experiencias.js';
+import { ExcursionGuiada } from '../excursion_guiada.js';
 
 describe('Facturacion', () => {
     let excursion;

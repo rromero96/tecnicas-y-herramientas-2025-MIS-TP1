@@ -1,4 +1,6 @@
-import { ExperienciaTuristica, ExcursionGuiada, PaqueteDeAventura } from '../experiencias.js';
+import { ExperienciaTuristica } from '../experiencias.js';
+import { ExcursionGuiada } from '../excursion_guiada.js';
+import { PaqueteDeAventura } from '../paquete_de_aventura.js';
 
 describe('ExperienciaTuristica', () => {
     test('no se puede instanciar directamente', () => {
