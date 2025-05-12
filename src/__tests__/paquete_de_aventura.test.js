@@ -1,89 +1,4 @@
-import { ExperienciaTuristica } from '../experiencias.js';
-import { ExcursionGuiada } from '../excursion_guiada.js';
 import { PaqueteDeAventura } from '../paquete_de_aventura.js';
-
-describe('ExperienciaTuristica', () => {
-    test('no se puede instanciar directamente', () => {
-        expect(() => {
-            new ExperienciaTuristica([], 100, 10, 2, true);
-        }).toThrow("ExperienciaTuristica es una clase abstracta y no puede ser instanciada directamente.");
-    });
-});
-
-describe('ExcursionGuiada', () => {
-    let excursion;
-    const fecha = "2024-04-01";
-    const nombre = "Juan Pérez";
-
-    beforeEach(() => {
-        excursion = new ExcursionGuiada(
-            [fecha],
-            1000,
-            20,
-            4,
-            true,
-            2
-        );
-    });
-
-    describe('constructor', () => {
-        test('debe inicializar correctamente los atributos', () => {
-            expect(excursion.guias).toBe(2);
-            expect(excursion.precioTotal).toBe(1000);
-            expect(excursion.capacidadMaxima).toBe(20);
-            expect(excursion.duracion).toBe(4);
-            expect(excursion.requiereGuia).toBe(true);
-        });
-
-        test('debe inicializar las listas de reservas', () => {
-            expect(excursion.listaReservas).toHaveLength(1);
-            expect(excursion.listaReservas[0].fecha).toBeInstanceOf(Date);
-            expect(excursion.listaReservas[0].reservas).toEqual([]);
-        });
-    });
-
-    describe('GetGuias', () => {
-        test('debe devolver el número correcto de guías', () => {
-            expect(excursion.GetGuias()).toBe(2);
-        });
-    });
-
-    describe('GetDisponibilidad', () => {
-        test('debe devolver true para una fecha disponible y con capacidad', () => {
-            expect(excursion.GetDisponibilidad(fecha)).toBe(true);
-        });
-
-        test('debe devolver false para una fecha no disponible', () => {
-            expect(excursion.GetDisponibilidad("2024-04-02")).toBe(false);
-        });
-
-        test('debe devolver false para una fecha inválida', () => {
-            expect(excursion.GetDisponibilidad("fecha-invalida")).toBe(false);
-        });
-    });
-
-    describe('AddListaReservas y RemoveListaReservas', () => {
-        test('debe agregar y remover reservas correctamente', () => {
-            excursion.AddListaReservas(fecha, nombre);
-            expect(excursion.listaReservas[0].reservas).toContain(nombre);
-
-            excursion.RemoveListaReservas(fecha, nombre);
-            expect(excursion.listaReservas[0].reservas).not.toContain(nombre);
-        });
-
-        test('debe lanzar error al agregar reserva en fecha no disponible', () => {
-            expect(() => {
-                excursion.AddListaReservas("2024-04-02", nombre);
-            }).toThrow("La fecha no está registrada en la lista de reservas.");
-        });
-
-        test('debe lanzar error al remover reserva inexistente', () => {
-            expect(() => {
-                excursion.RemoveListaReservas(fecha, "Nombre inexistente");
-            }).toThrow("El nombre no se encuentra en la lista de reservas.");
-        });
-    });
-});
 
 describe('PaqueteDeAventura', () => {
     let paquete;
@@ -126,6 +41,18 @@ describe('PaqueteDeAventura', () => {
             const nombres = paquete.GetActividades();
             expect(nombres).toEqual(["Rafting", "Trekking"]);
         });
+
+        test('debe devolver array vacío si no hay actividades', () => {
+            const paqueteSinActividades = new PaqueteDeAventura(
+                [fecha],
+                2000,
+                15,
+                8,
+                true,
+                []
+            );
+            expect(paqueteSinActividades.GetActividades()).toEqual([]);
+        });
     });
 
     describe('GetDisponibilidad', () => {
@@ -151,6 +78,47 @@ describe('PaqueteDeAventura', () => {
         test('debe devolver false para una fecha inválida', () => {
             expect(paquete.GetDisponibilidad("fecha-invalida")).toBe(false);
         });
+
+        test('debe devolver false cuando se alcanza la capacidad máxima', () => {
+            // Llenar la capacidad máxima
+            for (let i = 0; i < paquete.capacidadMaxima; i++) {
+                paquete.AddListaReservas(fecha, `Cliente ${i}`);
+            }
+            expect(paquete.GetDisponibilidad(fecha)).toBe(false);
+        });
+    });
+
+    describe('AgregarFechaEnDisponibilidad', () => {
+        test('debe agregar una nueva fecha a todas las actividades', () => {
+            const nuevaFecha = "2024-04-02";
+            paquete.AgregarFechaEnDisponibilidad(nuevaFecha);
+            
+            paquete.actividades.forEach(actividad => {
+                expect(actividad.disponibilidad).toContain(nuevaFecha);
+            });
+        });
+
+        test('debe lanzar error al agregar una fecha inválida', () => {
+            expect(() => {
+                paquete.AgregarFechaEnDisponibilidad("fecha-invalida");
+            }).toThrow("La fecha proporcionada no es válida");
+        });
+
+        test('debe lanzar error al agregar una fecha que ya existe', () => {
+            expect(() => {
+                paquete.AgregarFechaEnDisponibilidad(fecha);
+            }).toThrow("La fecha ya está registrada en la disponibilidad");
+        });
+
+        test('debe agregar la fecha a la lista de reservas y espera', () => {
+            const nuevaFecha = "2024-04-02";
+            paquete.AgregarFechaEnDisponibilidad(nuevaFecha);
+            
+            const fechaEnListaReservas = paquete.listaReservas.some(
+                reserva => reserva.fecha.getTime() === new Date(nuevaFecha).getTime()
+            );
+            expect(fechaEnListaReservas).toBe(true);
+        });
     });
 
     describe('AddListaReservas y RemoveListaReservas', () => {
@@ -172,6 +140,26 @@ describe('PaqueteDeAventura', () => {
             expect(() => {
                 paquete.RemoveListaReservas(fecha, "Nombre inexistente");
             }).toThrow("El nombre no se encuentra en la lista de reservas.");
+        });
+    });
+
+    describe('Manejo de actividades', () => {
+        test('debe mantener la consistencia de las actividades al agregar fecha', () => {
+            const nuevaFecha = "2024-04-02";
+            paquete.AgregarFechaEnDisponibilidad(nuevaFecha);
+            
+            // Verificar que todas las actividades tienen la misma disponibilidad
+            const disponibilidadActividades = paquete.actividades.map(a => a.disponibilidad);
+            const todasMismaDisponibilidad = disponibilidadActividades.every(
+                (disp, _, arr) => disp.length === arr[0].length && 
+                disp.every((f, i) => f === arr[0][i])
+            );
+            expect(todasMismaDisponibilidad).toBe(true);
+        });
+
+        test('debe mantener la consistencia de las actividades al agregar reserva', () => {
+            paquete.AddListaReservas(fecha, nombre);
+            expect(paquete.GetDisponibilidad(fecha)).toBe(true);
         });
     });
 }); 
