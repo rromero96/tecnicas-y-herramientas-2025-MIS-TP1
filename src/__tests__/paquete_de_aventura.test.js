@@ -124,10 +124,20 @@ describe('PaqueteDeAventura', () => {
     describe('AddListaReservas y RemoveListaReservas', () => {
         test('debe agregar y remover reservas correctamente', () => {
             paquete.AddListaReservas(fecha, nombre);
-            expect(paquete.listaReservas[0].reservas).toContain(nombre);
+            
+            // Verificar que la reserva se agregó correctamente
+            const reservaAgregada = paquete.listaReservas[0].reservas.find(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(reservaAgregada).toBeTruthy();
 
             paquete.RemoveListaReservas(fecha, nombre);
-            expect(paquete.listaReservas[0].reservas).not.toContain(nombre);
+            
+            // Verificar que la reserva se eliminó correctamente
+            const reservaEliminada = paquete.listaReservas[0].reservas.find(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(reservaEliminada).toBeFalsy();
         });
 
         test('debe lanzar error al agregar reserva en fecha no disponible', () => {

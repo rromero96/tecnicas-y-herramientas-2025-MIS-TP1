@@ -29,6 +29,7 @@ describe('Facturacion', () => {
             expect(facturacion.pagos).toBeInstanceOf(Map);
             expect(facturacion.facturas).toBeInstanceOf(Map);
             expect(facturacion.plazoPago).toBe(7);
+            expect(facturacion.reservasCanceladas).toBeInstanceOf(Array);
         });
     });
 
@@ -119,6 +120,114 @@ describe('Facturacion', () => {
             expect(facturasPendientes).toHaveLength(1);
             expect(facturasPendientes[0].nombre).toBe(nombre);
             expect(facturasPendientes[0].saldoPendiente).toBe(2000);
+        });
+    });
+    
+    describe('verificarYCancelarReservasVencidas', () => {
+        beforeEach(() => {
+            // Agregar el nombre a la lista de reservas
+            experiencia.AddListaReservas(fecha, nombre);
+            
+            // Crear una factura con fecha de vencimiento en el pasado
+            const factura = facturacion.crearFactura(fecha, nombre);
+            
+            // Modificar la fecha de vencimiento para que esté en el pasado
+            const fechaPasada = new Date();
+            fechaPasada.setDate(fechaPasada.getDate() - 1); // Un día en el pasado
+            facturacion.facturas.get(fecha).get(nombre).fechaVencimiento = fechaPasada;
+            
+            // Agregar alguien a la lista de espera
+            experiencia.AddListaEspera(fecha, {
+                nombre: "Carlos Rodríguez",
+                email: "carlos@example.com",
+                cantidadPersonas: 1
+            });
+        });
+        
+        test('debe cancelar reservas vencidas no pagadas', () => {
+            // Verificar que la reserva existe antes de la cancelación
+            const reservasAntes = experiencia.listaReservas.find(
+                r => r.fecha.getTime() === new Date(fecha).getTime()
+            ).reservas;
+            
+            const tieneReservaAntes = reservasAntes.some(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(tieneReservaAntes).toBe(true);
+            
+            // Ejecutar la cancelación automática
+            const reservasCanceladas = facturacion.verificarYCancelarReservasVencidas();
+            
+            // Verificar que la reserva fue cancelada
+            const reservasDespues = experiencia.listaReservas.find(
+                r => r.fecha.getTime() === new Date(fecha).getTime()
+            ).reservas;
+            
+            const tieneReservaDespues = reservasDespues.some(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(tieneReservaDespues).toBe(false);
+            
+            // Verificar que se registró la cancelación
+            expect(reservasCanceladas).toHaveLength(1);
+            expect(reservasCanceladas[0].nombre).toBe(nombre);
+            expect(reservasCanceladas[0].motivo).toBe('Falta de pago en el plazo establecido');
+        });
+        
+        test('debe promover reservas de la lista de espera al cancelar', () => {
+            // Ejecutar la cancelación automática
+            facturacion.verificarYCancelarReservasVencidas();
+            
+            // Verificar que la persona en espera fue confirmada
+            const reservasConfirmadas = experiencia.listaReservas.find(
+                r => r.fecha.getTime() === new Date(fecha).getTime()
+            ).reservas;
+            
+            const tieneReservaCarlos = reservasConfirmadas.some(r => {
+                return typeof r === 'object' && r.nombre === "Carlos Rodríguez";
+            });
+            expect(tieneReservaCarlos).toBe(true);
+            
+            // Verificar que ya no está en la lista de espera
+            const listaEspera = experiencia.GetListaEspera(fecha);
+            const carlosEnEspera = listaEspera.some(r => {
+                return typeof r === 'object' && r.nombre === "Carlos Rodríguez";
+            });
+            expect(carlosEnEspera).toBe(false);
+        });
+        
+        test('no debe cancelar reservas pagadas', () => {
+            // Registrar un pago completo
+            facturacion.registrarPago(fecha, nombre, 2000);
+            
+            // Ejecutar la cancelación automática
+            const reservasCanceladas = facturacion.verificarYCancelarReservasVencidas();
+            
+            // Verificar que no se canceló ninguna reserva
+            expect(reservasCanceladas).toHaveLength(0);
+            
+            // Verificar que la reserva sigue existiendo
+            const reservas = experiencia.listaReservas.find(
+                r => r.fecha.getTime() === new Date(fecha).getTime()
+            ).reservas;
+            
+            const tieneReserva = reservas.some(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(tieneReserva).toBe(true);
+        });
+        
+        test('debe mantener un historial de cancelaciones', () => {
+            // Ejecutar la cancelación automática
+            facturacion.verificarYCancelarReservasVencidas();
+            
+            // Verificar el historial de cancelaciones
+            const historial = facturacion.obtenerHistorialCancelacionesAutomaticas();
+            expect(historial).toHaveLength(1);
+            expect(historial[0].nombre).toBe(nombre);
+            expect(historial[0].fecha).toBe(fecha);
+            expect(historial[0].fechaCancelacion).toBeInstanceOf(Date);
+            expect(historial[0].motivo).toBe('Falta de pago en el plazo establecido');
         });
     });
 }); 

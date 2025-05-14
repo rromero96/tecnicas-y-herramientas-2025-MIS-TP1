@@ -65,10 +65,20 @@ describe('ExcursionGuiada', () => {
     describe('AddListaReservas y RemoveListaReservas', () => {
         test('debe agregar y remover reservas correctamente', () => {
             excursion.AddListaReservas(fecha, nombre);
-            expect(excursion.listaReservas[0].reservas).toContain(nombre);
+            
+            // Verificar que la reserva se agregó correctamente
+            const reservaAgregada = excursion.listaReservas[0].reservas.find(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(reservaAgregada).toBeTruthy();
 
             excursion.RemoveListaReservas(fecha, nombre);
-            expect(excursion.listaReservas[0].reservas).not.toContain(nombre);
+            
+            // Verificar que la reserva se eliminó correctamente
+            const reservaEliminada = excursion.listaReservas[0].reservas.find(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(reservaEliminada).toBeFalsy();
         });
 
         test('debe lanzar error al agregar reserva en fecha no disponible', () => {
@@ -156,10 +166,20 @@ describe('PaqueteDeAventura', () => {
     describe('AddListaReservas y RemoveListaReservas', () => {
         test('debe agregar y remover reservas correctamente', () => {
             paquete.AddListaReservas(fecha, nombre);
-            expect(paquete.listaReservas[0].reservas).toContain(nombre);
+            
+            // Verificar que la reserva se agregó correctamente
+            const reservaAgregada = paquete.listaReservas[0].reservas.find(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(reservaAgregada).toBeTruthy();
 
             paquete.RemoveListaReservas(fecha, nombre);
-            expect(paquete.listaReservas[0].reservas).not.toContain(nombre);
+            
+            // Verificar que la reserva se eliminó correctamente
+            const reservaEliminada = paquete.listaReservas[0].reservas.find(r => {
+                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
+            });
+            expect(reservaEliminada).toBeFalsy();
         });
 
         test('debe lanzar error al agregar reserva en fecha no disponible', () => {
@@ -212,7 +232,11 @@ describe('PaqueteDeAventura', () => {
         test('debe devolver false cuando se alcanza la capacidad máxima', () => {
             // Llenar la capacidad máxima
             for (let i = 0; i < paquete.capacidadMaxima; i++) {
-                paquete.AddListaReservas(fecha, `Cliente ${i}`);
+                paquete.AddListaReservas(fecha, {
+                    nombre: `Cliente ${i}`,
+                    email: `cliente${i}@example.com`,
+                    cantidadPersonas: 1
+                });
             }
             
             expect(paquete.GetDisponibilidad(fecha)).toBe(false);

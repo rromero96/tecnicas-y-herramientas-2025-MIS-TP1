@@ -46,7 +46,7 @@ export class ExperienciaTuristica {
         return this.capacidadMaxima
     }
 
-    AddListaReservas(fecha, nombre){
+    AddListaReservas(fecha, reservaInfo){
         const fechaBuscada = new Date(fecha);
 
         const reservaFecha = this.listaReservas.find(
@@ -57,8 +57,11 @@ export class ExperienciaTuristica {
             throw new Error("La fecha no está registrada en la lista de reservas.");
         }
 
-        reservaFecha.reservas.push(nombre)
-        console.log(`Reserva confirmada para ${nombre} en la fecha ${fecha}.`)
+        // Si reservaInfo es un objeto, usarlo como tal, si no, crear un objeto simple con el nombre
+        const infoReserva = typeof reservaInfo === 'object' ? reservaInfo : { nombre: reservaInfo, cantidadPersonas: 1 };
+        
+        reservaFecha.reservas.push(infoReserva);
+        console.log(`Reserva confirmada para ${infoReserva.nombre || reservaInfo} en la fecha ${fecha}.`)
     }
 
     RemoveListaReservas(fecha, nombre){
@@ -72,7 +75,14 @@ export class ExperienciaTuristica {
             throw new Error("La fecha no está registrada en la lista de reservas.");
         }
 
-        const index = reservaFecha.reservas.indexOf(nombre);
+        // Buscar por nombre o por objeto con propiedad nombre
+        const index = reservaFecha.reservas.findIndex(reserva => {
+            if (typeof reserva === 'object' && reserva.nombre) {
+                return reserva.nombre === nombre;
+            }
+            return reserva === nombre;
+        });
+        
         if (index > -1) {
             reservaFecha.reservas.splice(index, 1);
             console.log(`Reserva cancelada para ${nombre} en la fecha ${fecha}.`);
@@ -95,7 +105,7 @@ export class ExperienciaTuristica {
         return esperaFecha.reservas;
     }
 
-    AddListaEspera(fecha, nombre){
+    AddListaEspera(fecha, reservaInfo){
         const fechaBuscada = new Date(fecha);
 
         const reservaFecha = this.listaDeEspera.find(
@@ -106,8 +116,11 @@ export class ExperienciaTuristica {
             throw new Error("La fecha no está registrada en la lista de espera.");
         }
 
-        reservaFecha.reservas.push(nombre)
-        console.log(`Reserva en lista de espera para ${nombre} en la fecha ${fecha}.`)
+        // Si reservaInfo es un objeto, usarlo como tal, si no, crear un objeto simple con el nombre
+        const infoReserva = typeof reservaInfo === 'object' ? reservaInfo : { nombre: reservaInfo, cantidadPersonas: 1 };
+        
+        reservaFecha.reservas.push(infoReserva);
+        console.log(`Reserva en lista de espera para ${infoReserva.nombre || reservaInfo} en la fecha ${fecha}.`)
     }
 
     RemoveListaEspera(fecha, nombre){
@@ -121,7 +134,14 @@ export class ExperienciaTuristica {
             throw new Error("La fecha no está registrada en la lista de espera.");
         }
 
-        const index = reservaFecha.reservas.indexOf(nombre);
+        // Buscar por nombre o por objeto con propiedad nombre
+        const index = reservaFecha.reservas.findIndex(reserva => {
+            if (typeof reserva === 'object' && reserva.nombre) {
+                return reserva.nombre === nombre;
+            }
+            return reserva === nombre;
+        });
+        
         if (index > -1) {
             reservaFecha.reservas.splice(index, 1);
             console.log(`Reserva cancelada para ${nombre} en la lista de espera en la fecha ${fecha}.`);
