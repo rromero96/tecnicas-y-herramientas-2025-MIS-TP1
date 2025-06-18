@@ -126,7 +126,7 @@ describe('Facturacion', () => {
     describe('verificarYCancelarReservasVencidas', () => {
         beforeEach(() => {
             // Agregar el nombre a la lista de reservas
-            experiencia.AddListaReservas(fecha, nombre);
+            experiencia.addListaReservas(fecha, nombre);
             
             // Crear una factura con fecha de vencimiento en el pasado
             const factura = facturacion.crearFactura(fecha, nombre);
@@ -137,7 +137,7 @@ describe('Facturacion', () => {
             facturacion.facturas.get(fecha).get(nombre).fechaVencimiento = fechaPasada;
             
             // Agregar alguien a la lista de espera
-            experiencia.AddListaEspera(fecha, {
+            experiencia.addListaEspera(fecha, {
                 nombre: "Carlos Rodríguez",
                 email: "carlos@example.com",
                 cantidadPersonas: 1
@@ -189,7 +189,7 @@ describe('Facturacion', () => {
             expect(tieneReservaCarlos).toBe(true);
             
             // Verificar que ya no está en la lista de espera
-            const listaEspera = experiencia.GetListaEspera(fecha);
+            const listaEspera = experiencia.getListaEspera(fecha);
             const carlosEnEspera = listaEspera.some(r => {
                 return typeof r === 'object' && r.nombre === "Carlos Rodríguez";
             });

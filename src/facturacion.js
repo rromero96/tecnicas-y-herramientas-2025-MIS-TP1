@@ -8,7 +8,7 @@ export class Facturacion {
     }
 
     crearFactura(fecha, nombre) {
-        const montoTotal = this.experiencia.GetPrecioTotal();
+        const montoTotal = this.experiencia.getPrecioTotal();
         const factura = {
             nombre: nombre,
             montoTotal: montoTotal,
@@ -72,7 +72,7 @@ export class Facturacion {
 
         if (hoy > factura.fechaVencimiento && factura.saldoPendiente > 0) {
             // Cancelar la reserva automáticamente
-            this.experiencia.RemoveListaReservas(fecha, nombre);
+            this.experiencia.removeListaReservas(fecha, nombre);
             console.log(`Reserva cancelada automáticamente para ${nombre} por falta de pago`);
             return true;
         }
@@ -113,10 +113,10 @@ export class Facturacion {
                 if (hoy > factura.fechaVencimiento && factura.saldoPendiente > 0) {
                     try {
                         // Intentar cancelar la reserva
-                        this.experiencia.RemoveListaReservas(fecha, nombre);
+                        this.experiencia.removeListaReservas(fecha, nombre);
                         
                         // Procesar la lista de espera
-                        const listaDeEspera = this.experiencia.GetListaEspera(fecha);
+                        const listaDeEspera = this.experiencia.getListaEspera(fecha);
                         if (listaDeEspera && listaDeEspera.length > 0) {
                             // Obtener cuántos cupos se liberaron (si tenemos esa información)
                             let cuposLiberados = 1; // Por defecto asumimos 1 persona
@@ -132,10 +132,10 @@ export class Facturacion {
                                 // Si hay suficientes cupos para esta reserva
                                 if (personasNecesarias <= cuposDisponibles) {
                                     const nombreReserva = reservaEnEspera.nombre || reservaEnEspera;
-                                    this.experiencia.RemoveListaEspera(fecha, nombreReserva);
+                                    this.experiencia.removeListaEspera(fecha, nombreReserva);
                                     
                                     // Confirmar la reserva
-                                    this.experiencia.AddListaReservas(fecha, reservaEnEspera);
+                                    this.experiencia.addListaReservas(fecha, reservaEnEspera);
                                     console.log(`Reserva confirmada para ${nombreReserva} en la fecha ${fecha} desde la lista de espera.`);
                                     
                                     // Actualizar cupos disponibles

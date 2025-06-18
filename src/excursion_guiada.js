@@ -6,52 +6,44 @@ export class ExcursionGuiada extends ExperienciaTuristica {
         this.guias = guia // numero de guias 
     }
 
-    GetGuias() {
+    getGuias() {
         return this.guias // si no hay guias, no se puede realizar la reserva
     }
 
-    GetDisponibilidad(fecha) {
-        const fechaBuscada = new Date(fecha);
-        if (isNaN(fechaBuscada)) {
-            console.log("La fecha proporcionada no es válida");
+    getDisponibilidad(fecha) {
+        let fechaBuscada;
+        try {
+            fechaBuscada = this._parsearFecha(fecha);
+        } catch (e) {
+            console.log(e.message);
             return false;
         }
-
         const fechaIndex = this.disponibilidad.findIndex(f => {
             const fechaDisponible = new Date(f);
             return fechaDisponible.getTime() === fechaBuscada.getTime();
         });
-
         if (fechaIndex === -1) {
             return false;
         }
-
         return this.listaReservas[fechaIndex].reservas.length < this.capacidadMaxima;
     }
     
-    AgregarFechaEnDisponibilidad(fecha) {
-        const fechaBuscada = new Date(fecha);
-        if (isNaN(fechaBuscada)) {
-            throw new Error("La fecha proporcionada no es válida");
+    agregarFechaEnDisponibilidad(fecha) {
+        let fechaBuscada;
+        try {
+            fechaBuscada = this._parsearFecha(fecha);
+        } catch (e) {
+            throw e;
         }
-        
-
-        const fechaExistente = this.disponibilidad.some(f => {
-            const fechaDisponible = new Date(f);
-            return fechaDisponible.getTime() === fechaBuscada.getTime();
-        });
-        
-        if (fechaExistente) {
+        if (this._existeFechaEnDisponibilidad(fecha)) {
             throw new Error("La fecha ya está registrada en la disponibilidad");
         }
-        
-
         this.disponibilidad.push(fecha);
-        
-
-        this.agregarFechaEnListaReservas(fecha);
-        this.agregarFechaEnListaEspera(fecha);
-        
+        this._agregarFechaEnListas(fecha);
         console.log(`Fecha ${fecha} agregada a la disponibilidad exitosamente.`);
+    }
+
+    requiereGuia() {
+        return Boolean(this.requiereGuia);
     }
 }

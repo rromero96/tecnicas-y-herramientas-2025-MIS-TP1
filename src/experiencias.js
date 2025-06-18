@@ -18,35 +18,31 @@ export class ExperienciaTuristica {
         }));
     }
 
-    GetDisponibilidad(fecha){
-       throw new Error("El método 'Disponibilidad' debe ser implementado por la clase hija.");
+    getDisponibilidad(fecha) {
+        throw new Error("El método 'Disponibilidad' debe ser implementado por la clase hija.");
     }
     
-    AgregarFechaEnDisponibilidad(fecha){
+    agregarFechaEnDisponibilidad(fecha) {
         throw new Error("El método 'AgregarDisponibilidad' debe ser implementado por la clase hija.");
     }
 
-    RequiereGuia(){
+    getGuias() {
         return this.requiereGuia
     }
 
-    GetPrecioTotal(){
+    getPrecioTotal() {
         return this.precioTotal
     }
 
-    GetCapacidadMaxima(){
+    getCapacidadMaxima() {
         return this.capacidadMaxima
     }
 
-    GetDuracion(){
+    getDuracion() {
         return this.duracion
     }
 
-    GetCapacidadMaxima(){
-        return this.capacidadMaxima
-    }
-
-    AddListaReservas(fecha, reservaInfo){
+    addListaReservas(fecha, reservaInfo) {
         const fechaBuscada = new Date(fecha);
 
         const reservaFecha = this.listaReservas.find(
@@ -64,7 +60,7 @@ export class ExperienciaTuristica {
         console.log(`Reserva confirmada para ${infoReserva.nombre || reservaInfo} en la fecha ${fecha}.`)
     }
 
-    RemoveListaReservas(fecha, nombre){
+    removeListaReservas(fecha, nombre) {
         const fechaBuscada = new Date(fecha);
 
         const reservaFecha = this.listaReservas.find(
@@ -91,7 +87,7 @@ export class ExperienciaTuristica {
         }
     }
 
-    GetListaEspera(fecha) {
+    getListaEspera(fecha) {
         const fechaBuscada = new Date(fecha);
 
         const esperaFecha = this.listaDeEspera.find(
@@ -105,7 +101,7 @@ export class ExperienciaTuristica {
         return esperaFecha.reservas;
     }
 
-    AddListaEspera(fecha, reservaInfo){
+    addListaEspera(fecha, reservaInfo) {
         const fechaBuscada = new Date(fecha);
 
         const reservaFecha = this.listaDeEspera.find(
@@ -123,7 +119,7 @@ export class ExperienciaTuristica {
         console.log(`Reserva en lista de espera para ${infoReserva.nombre || reservaInfo} en la fecha ${fecha}.`)
     }
 
-    RemoveListaEspera(fecha, nombre){
+    removeListaEspera(fecha, nombre) {
         const fechaBuscada = new Date(fecha);
 
         const reservaFecha = this.listaDeEspera.find(
@@ -164,5 +160,31 @@ export class ExperienciaTuristica {
             fecha: fechaBuscada,
             reservas: []
         });
+    }
+
+    // Métodos utilitarios protegidos para subclases
+    _parsearFecha(fecha) {
+        const fechaBuscada = new Date(fecha);
+        if (isNaN(fechaBuscada)) {
+            throw new Error("La fecha proporcionada no es válida");
+        }
+        return fechaBuscada;
+    }
+
+    _existeFechaEnDisponibilidad(fecha) {
+        const fechaBuscada = new Date(fecha);
+        return this.disponibilidad.some(f => {
+            const fechaDisponible = new Date(f);
+            return fechaDisponible.getTime() === fechaBuscada.getTime();
+        });
+    }
+
+    _agregarFechaEnListas(fecha) {
+        this.agregarFechaEnListaReservas(fecha);
+        this.agregarFechaEnListaEspera(fecha);
+    }
+
+    requiereGuia() {
+        return Boolean(this.requiereGuia);
     }
 }

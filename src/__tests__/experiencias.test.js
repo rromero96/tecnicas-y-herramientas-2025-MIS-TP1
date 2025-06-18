@@ -42,29 +42,29 @@ describe('ExcursionGuiada', () => {
         });
     });
 
-    describe('GetGuias', () => {
+    describe('getGuias', () => {
         test('debe devolver el número correcto de guías', () => {
-            expect(excursion.GetGuias()).toBe(2);
+            expect(excursion.getGuias()).toBe(2);
         });
     });
 
-    describe('GetDisponibilidad', () => {
+    describe('getDisponibilidad', () => {
         test('debe devolver true para una fecha disponible y con capacidad', () => {
-            expect(excursion.GetDisponibilidad(fecha)).toBe(true);
+            expect(excursion.getDisponibilidad(fecha)).toBe(true);
         });
 
         test('debe devolver false para una fecha no disponible', () => {
-            expect(excursion.GetDisponibilidad("2024-04-02")).toBe(false);
+            expect(excursion.getDisponibilidad("2024-04-02")).toBe(false);
         });
 
         test('debe devolver false para una fecha inválida', () => {
-            expect(excursion.GetDisponibilidad("fecha-invalida")).toBe(false);
+            expect(excursion.getDisponibilidad("fecha-invalida")).toBe(false);
         });
     });
 
-    describe('AddListaReservas y RemoveListaReservas', () => {
+    describe('addListaReservas y removeListaReservas', () => {
         test('debe agregar y remover reservas correctamente', () => {
-            excursion.AddListaReservas(fecha, nombre);
+            excursion.addListaReservas(fecha, nombre);
             
             // Verificar que la reserva se agregó correctamente
             const reservaAgregada = excursion.listaReservas[0].reservas.find(r => {
@@ -72,7 +72,7 @@ describe('ExcursionGuiada', () => {
             });
             expect(reservaAgregada).toBeTruthy();
 
-            excursion.RemoveListaReservas(fecha, nombre);
+            excursion.removeListaReservas(fecha, nombre);
             
             // Verificar que la reserva se eliminó correctamente
             const reservaEliminada = excursion.listaReservas[0].reservas.find(r => {
@@ -83,13 +83,13 @@ describe('ExcursionGuiada', () => {
 
         test('debe lanzar error al agregar reserva en fecha no disponible', () => {
             expect(() => {
-                excursion.AddListaReservas("2024-04-02", nombre);
+                excursion.addListaReservas("2024-04-02", nombre);
             }).toThrow("La fecha no está registrada en la lista de reservas.");
         });
 
         test('debe lanzar error al remover reserva inexistente', () => {
             expect(() => {
-                excursion.RemoveListaReservas(fecha, "Nombre inexistente");
+                excursion.removeListaReservas(fecha, "Nombre inexistente");
             }).toThrow("El nombre no se encuentra en la lista de reservas.");
         });
     });
@@ -138,9 +138,9 @@ describe('PaqueteDeAventura', () => {
         });
     });
 
-    describe('GetDisponibilidad', () => {
+    describe('getDisponibilidad', () => {
         test('debe devolver true cuando todas las actividades están disponibles', () => {
-            expect(paquete.GetDisponibilidad(fecha)).toBe(true);
+            expect(paquete.getDisponibilidad(fecha)).toBe(true);
         });
 
         test('debe devolver false cuando alguna actividad no está disponible', () => {
@@ -155,17 +155,17 @@ describe('PaqueteDeAventura', () => {
                     { nombre: "Trekking", disponibilidad: ["2024-04-02"] }
                 ]
             );
-            expect(paqueteConActividadNoDisponible.GetDisponibilidad(fecha)).toBe(false);
+            expect(paqueteConActividadNoDisponible.getDisponibilidad(fecha)).toBe(false);
         });
 
         test('debe devolver false para una fecha inválida', () => {
-            expect(paquete.GetDisponibilidad("fecha-invalida")).toBe(false);
+            expect(paquete.getDisponibilidad("fecha-invalida")).toBe(false);
         });
     });
 
-    describe('AddListaReservas y RemoveListaReservas', () => {
+    describe('addListaReservas y removeListaReservas', () => {
         test('debe agregar y remover reservas correctamente', () => {
-            paquete.AddListaReservas(fecha, nombre);
+            paquete.addListaReservas(fecha, nombre);
             
             // Verificar que la reserva se agregó correctamente
             const reservaAgregada = paquete.listaReservas[0].reservas.find(r => {
@@ -173,7 +173,7 @@ describe('PaqueteDeAventura', () => {
             });
             expect(reservaAgregada).toBeTruthy();
 
-            paquete.RemoveListaReservas(fecha, nombre);
+            paquete.removeListaReservas(fecha, nombre);
             
             // Verificar que la reserva se eliminó correctamente
             const reservaEliminada = paquete.listaReservas[0].reservas.find(r => {
@@ -184,21 +184,21 @@ describe('PaqueteDeAventura', () => {
 
         test('debe lanzar error al agregar reserva en fecha no disponible', () => {
             expect(() => {
-                paquete.AddListaReservas("2024-04-02", nombre);
+                paquete.addListaReservas("2024-04-02", nombre);
             }).toThrow("La fecha no está registrada en la lista de reservas.");
         });
 
         test('debe lanzar error al remover reserva inexistente', () => {
             expect(() => {
-                paquete.RemoveListaReservas(fecha, "Nombre inexistente");
+                paquete.removeListaReservas(fecha, "Nombre inexistente");
             }).toThrow("El nombre no se encuentra en la lista de reservas.");
         });
     });
 
-    describe('AgregarFechaEnDisponibilidad', () => {
+    describe('agregarFechaEnDisponibilidad', () => {
         test('debe agregar una nueva fecha a todas las actividades', () => {
             const nuevaFecha = "2024-04-02";
-            paquete.AgregarFechaEnDisponibilidad(nuevaFecha);
+            paquete.agregarFechaEnDisponibilidad(nuevaFecha);
             
             paquete.actividades.forEach(actividad => {
                 expect(actividad.disponibilidad).toContain(nuevaFecha);
@@ -207,19 +207,19 @@ describe('PaqueteDeAventura', () => {
 
         test('debe lanzar error al agregar una fecha inválida', () => {
             expect(() => {
-                paquete.AgregarFechaEnDisponibilidad("fecha-invalida");
+                paquete.agregarFechaEnDisponibilidad("fecha-invalida");
             }).toThrow("La fecha proporcionada no es válida");
         });
 
         test('debe lanzar error al agregar una fecha que ya existe', () => {
             expect(() => {
-                paquete.AgregarFechaEnDisponibilidad(fecha);
+                paquete.agregarFechaEnDisponibilidad(fecha);
             }).toThrow("La fecha ya está registrada en la disponibilidad");
         });
 
         test('debe agregar la fecha a la lista de reservas y espera', () => {
             const nuevaFecha = "2024-04-02";
-            paquete.AgregarFechaEnDisponibilidad(nuevaFecha);
+            paquete.agregarFechaEnDisponibilidad(nuevaFecha);
             
             const fechaEnListaReservas = paquete.listaReservas.some(
                 reserva => reserva.fecha.getTime() === new Date(nuevaFecha).getTime()
@@ -228,25 +228,61 @@ describe('PaqueteDeAventura', () => {
         });
     });
 
-    describe('GetDisponibilidad - casos adicionales', () => {
+    describe('getDisponibilidad - casos adicionales', () => {
         test('debe devolver false cuando se alcanza la capacidad máxima', () => {
             // Llenar la capacidad máxima
             for (let i = 0; i < paquete.capacidadMaxima; i++) {
-                paquete.AddListaReservas(fecha, {
+                paquete.addListaReservas(fecha, {
                     nombre: `Cliente ${i}`,
                     email: `cliente${i}@example.com`,
                     cantidadPersonas: 1
                 });
             }
             
-            expect(paquete.GetDisponibilidad(fecha)).toBe(false);
+            expect(paquete.getDisponibilidad(fecha)).toBe(false);
         });
 
         test('debe manejar correctamente fechas en diferentes formatos', () => {
             const fechaAlternativa = "01/04/2024";
-            paquete.AgregarFechaEnDisponibilidad(fechaAlternativa);
+            paquete.agregarFechaEnDisponibilidad(fechaAlternativa);
             
-            expect(paquete.GetDisponibilidad(fechaAlternativa)).toBe(true);
+            expect(paquete.getDisponibilidad(fechaAlternativa)).toBe(true);
         });
+    });
+});
+
+describe('Cobertura adicional y casos límite en Experiencias', () => {
+    const fecha = "2024-04-01";
+    test('debe lanzar error al llamar métodos abstractos de la clase base', () => {
+        class Dummy extends ExperienciaTuristica {}
+        const dummy = Object.create(ExperienciaTuristica.prototype);
+        expect(() => dummy.getDisponibilidad('2024-04-01')).toThrow();
+        expect(() => dummy.agregarFechaEnDisponibilidad('2024-04-01')).toThrow();
+    });
+
+    test('debe lanzar error al agregar fecha inválida en subclase', () => {
+        const excursion = new ExcursionGuiada([
+            fecha
+        ], 1000, 20, 4, true, 2);
+        expect(() => excursion.agregarFechaEnDisponibilidad('fecha-invalida')).toThrow('La fecha proporcionada no es válida');
+    });
+
+    test('debe lanzar error al agregar fecha repetida en subclase', () => {
+        const excursion = new ExcursionGuiada([
+            fecha
+        ], 1000, 20, 4, true, 2);
+        expect(() => excursion.agregarFechaEnDisponibilidad(fecha)).toThrow('La fecha ya está registrada en la disponibilidad');
+    });
+
+    test('debe agregar y remover reservas con datos atípicos', () => {
+        const excursion = new ExcursionGuiada([
+            fecha
+        ], 1000, 20, 4, true, 2);
+        // Sin nombre
+        expect(() => excursion.addListaReservas(fecha, { cantidadPersonas: 1 })).not.toThrow();
+        // Sin cantidadPersonas
+        expect(() => excursion.addListaReservas(fecha, { nombre: 'SinCantidad' })).not.toThrow();
+        // Remover reserva sin nombre
+        expect(() => excursion.removeListaReservas(fecha, 'SinCantidad')).not.toThrow();
     });
 }); 
