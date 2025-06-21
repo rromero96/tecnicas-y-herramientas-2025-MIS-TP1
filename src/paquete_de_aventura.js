@@ -1,8 +1,8 @@
 import { ExperienciaTuristica } from './experiencias.js';
 
 export class PaqueteDeAventura extends ExperienciaTuristica {
-    constructor(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, actividades) {
-        super(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia)
+    constructor(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, actividades, tipoEstrategia) {
+        super(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, tipoEstrategia)
         this.actividades = actividades // objeto => [{nombre: "nombre de la actividad", disponibilidad:["01/01/2025"]}]
     }
     
