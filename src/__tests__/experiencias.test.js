@@ -5,7 +5,7 @@ import { PaqueteDeAventura } from '../paquete_de_aventura.js';
 describe('ExperienciaTuristica', () => {
     test('no se puede instanciar directamente', () => {
         expect(() => {
-            new ExperienciaTuristica([], 100, 10, 2, true);
+            new ExperienciaTuristica([], 100, 10, 2, true, "default");
         }).toThrow("ExperienciaTuristica es una clase abstracta y no puede ser instanciada directamente.");
     });
 });

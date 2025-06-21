@@ -1,5 +1,14 @@
+import { EstrategiaDefault, EstrategiaOrdenLlegadaEstricto, EstrategiaCompletadoEficiente } from './lista_espera_strategy.js';
+
+// Enumeración para los tipos de estrategia
+export const TipoEstrategia = {
+    DEFAULT: 'default',
+    ORDEN_LLEGADA_ESTRICTO: 'ordenLlegadaEstricto',
+    COMPLETADO_EFICIENTE: 'completadoEficiente'
+};
+
 export class ExperienciaTuristica {
-    constructor(fechas, precio, capacidadMaxima, duracion, requiereGuia) {
+    constructor(fechas, precio, capacidadMaxima, duracion, requiereGuia, tipoEstrategia) {
         if (new.target === ExperienciaTuristica) {
             throw new Error("ExperienciaTuristica es una clase abstracta y no puede ser instanciada directamente.");
         }
@@ -16,6 +25,8 @@ export class ExperienciaTuristica {
             fecha: new Date(fecha), 
             reservas: [] 
         }));
+        this.estrategiaListaDeEspera = this.setEstrategiaListaEspera(tipoEstrategia);
+        this.tipoEstrategia = tipoEstrategia;
     }
 
     getDisponibilidad(fecha) {
@@ -40,6 +51,10 @@ export class ExperienciaTuristica {
 
     getDuracion() {
         return this.duracion
+    }
+
+    getEstrategiaListaEspera() {
+        return this.tipoEstrategia;
     }
 
     addListaReservas(fecha, reservaInfo) {
@@ -119,7 +134,7 @@ export class ExperienciaTuristica {
         console.log(`Reserva en lista de espera para ${infoReserva.nombre || reservaInfo} en la fecha ${fecha}.`)
     }
 
-    removeListaEspera(fecha, nombre) {
+    removeListaEspera(fecha, reservaInfo) {
         const fechaBuscada = new Date(fecha);
 
         const reservaFecha = this.listaDeEspera.find(
@@ -133,14 +148,14 @@ export class ExperienciaTuristica {
         // Buscar por nombre o por objeto con propiedad nombre
         const index = reservaFecha.reservas.findIndex(reserva => {
             if (typeof reserva === 'object' && reserva.nombre) {
-                return reserva.nombre === nombre;
+                return reserva.nombre === reservaInfo;
             }
-            return reserva === nombre;
+            return reserva === reservaInfo;
         });
         
         if (index > -1) {
             reservaFecha.reservas.splice(index, 1);
-            console.log(`Reserva cancelada para ${nombre} en la lista de espera en la fecha ${fecha}.`);
+            console.log(`Reserva cancelada para ${reservaInfo} en la lista de espera en la fecha ${fecha}.`);
         } else {
             throw new Error("El nombre no se encuentra en la lista de espera.");
         }
@@ -186,5 +201,25 @@ export class ExperienciaTuristica {
 
     requiereGuia() {
         return Boolean(this.requiereGuia);
+    }
+    
+    setEstrategiaListaEspera(tipoEstrategia) {
+        switch(tipoEstrategia) {
+            case TipoEstrategia.ORDEN_LLEGADA_ESTRICTO:
+                this.estrategiaListaDeEspera = new EstrategiaOrdenLlegadaEstricto();
+                this.tipoEstrategia = TipoEstrategia.ORDEN_LLEGADA_ESTRICTO;
+                console.log('Estrategia cambiada a: Orden de Llegada');
+                break;
+            case TipoEstrategia.COMPLETADO_EFICIENTE:
+                this.estrategiaListaDeEspera = new EstrategiaCompletadoEficiente();
+                this.tipoEstrategia = TipoEstrategia.COMPLETADO_EFICIENTE;
+                console.log('Estrategia cambiada a: Completado Eficiente');
+                break;
+            default:
+                this.estrategiaListaDeEspera = new EstrategiaDefault();
+                this.tipoEstrategia = TipoEstrategia.DEFAULT;
+                console.log('Estrategia cambiada a: Default');
+                break;
+        }
     }
 }
