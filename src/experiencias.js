@@ -25,8 +25,8 @@ export class ExperienciaTuristica {
             fecha: new Date(fecha), 
             reservas: [] 
         }));
-        this.estrategiaListaDeEspera = this.setEstrategiaListaEspera(tipoEstrategia);
         this.tipoEstrategia = tipoEstrategia;
+        this.setEstrategiaListaDeEspera(tipoEstrategia);
     }
 
     getDisponibilidad(fecha) {
@@ -53,7 +53,11 @@ export class ExperienciaTuristica {
         return this.duracion
     }
 
-    getEstrategiaListaEspera() {
+    getEstrategiaListaDeEspera() {
+        return this.estrategiaListaDeEspera;
+    }
+
+    getTipoEstrategia() {
         return this.tipoEstrategia;
     }
 
@@ -202,18 +206,21 @@ export class ExperienciaTuristica {
     requiereGuia() {
         return Boolean(this.requiereGuia);
     }
-    
-    setEstrategiaListaEspera(tipoEstrategia) {
+
+    setEstrategiaListaDeEspera(tipoEstrategia) {
         switch(tipoEstrategia) {
             case TipoEstrategia.ORDEN_LLEGADA_ESTRICTO:
                 this.tipoEstrategia = TipoEstrategia.ORDEN_LLEGADA_ESTRICTO;
-                return new EstrategiaOrdenLlegadaEstricto();
+                this.estrategiaListaDeEspera = new EstrategiaOrdenLlegadaEstricto();
+                break;
             case TipoEstrategia.COMPLETADO_EFICIENTE:
                 this.tipoEstrategia = TipoEstrategia.COMPLETADO_EFICIENTE;
-                return new EstrategiaCompletadoEficiente();
+                this.estrategiaListaDeEspera = new EstrategiaCompletadoEficiente();
+                break;
             default:
                 this.tipoEstrategia = TipoEstrategia.DEFAULT;
-                return new EstrategiaDefault();
+                this.estrategiaListaDeEspera = new EstrategiaDefault();
+                break;
         }
     }
 }

@@ -68,12 +68,13 @@ export class Reserva {
     cancelar() {
         try {
             const cuposLiberados = this.cantidadPersonas;
+            const listaEspera = this.experiencia.getListaEspera(this.fecha);
             this.experiencia.removeListaReservas(this.fecha, this.nombre);
-                const listaEspera = this.experiencia.getListaEspera(this.fecha);
-                
+            
             // Ahora utilizamos la estrategia configurada en la experiencia
             // en lugar del método interno de procesamiento
-            this.experiencia.estrategiaListaDeEspera.procesarListaDeEspera(cuposLiberados, listaEspera, this.experiencia, this.fecha);
+            const estrategiaListaDeEspera = this.experiencia.getEstrategiaListaDeEspera();
+            estrategiaListaDeEspera.procesarListaDeEspera(cuposLiberados, listaEspera, this.experiencia, this.fecha);
             return true;
         } catch (error) {
             console.error(`Error al procesar la cancelacion: ${error.message}`);
