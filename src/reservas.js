@@ -69,86 +69,16 @@ export class Reserva {
         try {
             const cuposLiberados = this.cantidadPersonas;
             this.experiencia.removeListaReservas(this.fecha, this.nombre);
-            let listaDeEspera = this.experiencia.getListaEspera(this.fecha);
-            if (listaDeEspera && listaDeEspera.length > 0) {
-                this._procesarListaDeEspera(cuposLiberados, listaDeEspera);
-            }
+                const listaEspera = this.experiencia.getListaEspera(this.fecha);
+                
+            // Ahora utilizamos la estrategia configurada en la experiencia
+            // en lugar del método interno de procesamiento
+            this.experiencia.estrategiaListaDeEspera.procesarListaDeEspera(cuposLiberados, listaEspera, this.experiencia, this.fecha);
             return true;
         } catch (error) {
             console.error(`Error al procesar la cancelacion: ${error.message}`);
             throw error;
         }
-    }
-
-    // Método privado: procesa la lista de espera al cancelar
-    _procesarListaDeEspera(cuposLiberados, listaDeEspera) {
-        let cuposDisponibles = cuposLiberados;
-        const listaEsperaOriginal = [...listaDeEspera];
-        listaEsperaOriginal.sort((a, b) => {
-            const tamanoA = a.cantidadPersonas || 1;
-            const tamanoB = b.cantidadPersonas || 1;
-            return tamanoA - tamanoB;
-        });
-        const mejorCombinacion = this._buscarMejorCombinacion(listaEsperaOriginal, cuposDisponibles);
-        if (mejorCombinacion.length > 0) {
-            mejorCombinacion.sort((a, b) => b - a);
-            for (const indice of mejorCombinacion) {
-                const reservaAConfirmar = listaEsperaOriginal[indice];
-                const nombreReserva = reservaAConfirmar.nombre || reservaAConfirmar;
-                this.experiencia.removeListaEspera(this.fecha, nombreReserva);
-                this.experiencia.addListaReservas(this.fecha, reservaAConfirmar);
-                console.log(`Reserva confirmada para ${nombreReserva} en la fecha ${this.fecha}.`);
-            }
-        } else {
-            // Enfoque simple si no hay combinación óptima
-            while (cuposDisponibles > 0 && listaEsperaOriginal.length > 0) {
-                let reservaIndex = -1;
-                let reservaAConfirmar = null;
-                for (let i = 0; i < listaEsperaOriginal.length; i++) {
-                    const reserva = listaEsperaOriginal[i];
-                    const personasNecesarias = reserva.cantidadPersonas || 1;
-                    if (personasNecesarias <= cuposDisponibles) {
-                        reservaIndex = i;
-                        reservaAConfirmar = reserva;
-                        break;
-                    }
-                }
-                if (reservaIndex === -1) break;
-                listaEsperaOriginal.splice(reservaIndex, 1);
-                const nombreReserva = reservaAConfirmar.nombre || reservaAConfirmar;
-                this.experiencia.removeListaEspera(this.fecha, nombreReserva);
-                this.experiencia.addListaReservas(this.fecha, reservaAConfirmar);
-                console.log(`Reserva confirmada para ${nombreReserva} en la fecha ${this.fecha}.`);
-                const personasNecesarias = reservaAConfirmar.cantidadPersonas || 1;
-                cuposDisponibles -= personasNecesarias;
-            }
-        }
-    }
-
-    // Método privado: busca la mejor combinación de reservas en espera
-    _buscarMejorCombinacion(listaEspera, cuposDisponibles) {
-        let mejorCombinacion = [];
-        let mejorUsoDeEspacio = 0;
-        const encontrarMejorCombinacion = (indiceActual, combinacionActual, espacioUsado) => {
-            if (espacioUsado > mejorUsoDeEspacio && espacioUsado <= cuposDisponibles) {
-                mejorCombinacion = [...combinacionActual];
-                mejorUsoDeEspacio = espacioUsado;
-            }
-            if (indiceActual >= listaEspera.length || espacioUsado === cuposDisponibles) {
-                return;
-            }
-            for (let i = indiceActual; i < listaEspera.length; i++) {
-                const reserva = listaEspera[i];
-                const tamano = reserva.cantidadPersonas || 1;
-                if (espacioUsado + tamano <= cuposDisponibles) {
-                    combinacionActual.push(i);
-                    encontrarMejorCombinacion(i + 1, combinacionActual, espacioUsado + tamano);
-                    combinacionActual.pop();
-                }
-            }
-        };
-        encontrarMejorCombinacion(0, [], 0);
-        return mejorCombinacion;
     }
 
     agregarListaEspera() {
@@ -197,5 +127,3 @@ export class Reserva {
         return this.fechaReserva;
     }
 }
-
-

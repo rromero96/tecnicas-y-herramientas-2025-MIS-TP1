@@ -1,5 +1,6 @@
 import { Reserva } from '../reservas.js';
 import { PaqueteDeAventura } from '../paquete_de_aventura.js';
+import { TipoEstrategia } from '../experiencias.js';
 
 describe('Reserva', () => {
     let reserva;
@@ -18,7 +19,8 @@ describe('Reserva', () => {
             15,
             8,
             true,
-            actividades
+            actividades,
+            TipoEstrategia.DEFAULT
         );
         // Forzar requiereGuia como método en caso de que se sobrescriba
         experiencia.requiereGuia = () => Boolean(experiencia.requiereGuia);
@@ -188,70 +190,6 @@ describe('Reserva', () => {
             
             expect(reservaConfirmada).toBeTruthy();
             expect(reservaConfirmada.email).toBe("maria@example.com");
-        });
-        
-        test('debe manejar correctamente la lista de espera con diferentes tamaños de grupo', () => {
-            // Crear una experiencia con capacidad limitada
-            const experienciaLimitada = new PaqueteDeAventura(
-                [fecha],
-                2000,
-                10, // Capacidad máxima de 10 personas
-                8,
-                true,
-                actividades
-            );
-            // Forzar requiereGuia como método
-            experienciaLimitada.requiereGuia = () => Boolean(experienciaLimitada.requiereGuia);
-            
-            // Agregar una reserva de 5 personas
-            const reservaGrande = new Reserva(
-                'Grupo Grande',
-                'grupo@example.com',
-                experienciaLimitada,
-                7,
-                fecha,
-                0,
-                5,
-                2000
-            );
-            reservaGrande.confirmar();
-            
-            // Agregar varias reservas a la lista de espera
-            experienciaLimitada.addListaEspera(fecha, {
-                nombre: "Grupo 1",
-                email: "grupo1@example.com",
-                cantidadPersonas: 4
-            });
-            
-            experienciaLimitada.addListaEspera(fecha, {
-                nombre: "Grupo 2",
-                email: "grupo2@example.com",
-                cantidadPersonas: 2
-            });
-            
-            experienciaLimitada.addListaEspera(fecha, {
-                nombre: "Grupo 3",
-                email: "grupo3@example.com",
-                cantidadPersonas: 3
-            });
-            
-            // Cancelar la reserva grande (libera 5 cupos)
-            reservaGrande.cancelar();
-            
-            // Verificar que se confirmaron las reservas que caben en los cupos liberados
-            // Puede ser cualquier combinación válida de reservas que sumen 5 personas
-            const reservasConfirmadas = experienciaLimitada.listaReservas[0].reservas;
-            const nombresConfirmados = reservasConfirmadas.filter(r => typeof r === 'object').map(r => r.nombre);
-            const posiblesCombinaciones = [
-                ['Grupo 2', 'Grupo 3'],
-                ['Grupo 3', 'Grupo 2']
-            ];
-            const esCombinacionValida = posiblesCombinaciones.some(comb => comb.every(n => nombresConfirmados.includes(n)));
-            expect(esCombinacionValida).toBe(true);
-            // Grupo 1 debería seguir en lista de espera porque requiere 4 personas
-            const listaEspera = experienciaLimitada.getListaEspera(fecha);
-            const grupo1EnEspera = listaEspera.some(r => typeof r === 'object' && r.nombre === "Grupo 1");
-            expect(grupo1EnEspera).toBe(true);
         });
     });
 

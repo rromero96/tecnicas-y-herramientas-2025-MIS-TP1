@@ -336,6 +336,7 @@ describe('Estrategias de Lista de Espera', () => {
         excursion.setEstrategiaListaEspera(TipoEstrategia.COMPLETADO_EFICIENTE);
         expect(excursion.getEstrategiaListaEspera()).toBe(TipoEstrategia.COMPLETADO_EFICIENTE);
     });
+    
     test('debe modificar correctamente la estrategia de lista de espera a Default', () => {
         const excursion = new ExcursionGuiada(
             [fecha],

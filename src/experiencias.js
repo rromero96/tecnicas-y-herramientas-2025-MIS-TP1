@@ -206,20 +206,14 @@ export class ExperienciaTuristica {
     setEstrategiaListaEspera(tipoEstrategia) {
         switch(tipoEstrategia) {
             case TipoEstrategia.ORDEN_LLEGADA_ESTRICTO:
-                this.estrategiaListaDeEspera = new EstrategiaOrdenLlegadaEstricto();
                 this.tipoEstrategia = TipoEstrategia.ORDEN_LLEGADA_ESTRICTO;
-                console.log('Estrategia cambiada a: Orden de Llegada');
-                break;
+                return new EstrategiaOrdenLlegadaEstricto();
             case TipoEstrategia.COMPLETADO_EFICIENTE:
-                this.estrategiaListaDeEspera = new EstrategiaCompletadoEficiente();
                 this.tipoEstrategia = TipoEstrategia.COMPLETADO_EFICIENTE;
-                console.log('Estrategia cambiada a: Completado Eficiente');
-                break;
+                return new EstrategiaCompletadoEficiente();
             default:
-                this.estrategiaListaDeEspera = new EstrategiaDefault();
                 this.tipoEstrategia = TipoEstrategia.DEFAULT;
-                console.log('Estrategia cambiada a: Default');
-                break;
+                return new EstrategiaDefault();
         }
     }
 }
