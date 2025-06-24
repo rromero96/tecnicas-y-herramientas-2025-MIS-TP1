@@ -1,11 +1,12 @@
-import { ExperienciaTuristica } from '../experiencias.js';
+import { ExperienciaTuristica, TipoEstrategia } from '../experiencias.js';
 import { ExcursionGuiada } from '../excursion_guiada.js';
 import { PaqueteDeAventura } from '../paquete_de_aventura.js';
+import { EstrategiaCompletadoEficiente } from '../lista_espera_strategy.js';
 
 describe('ExperienciaTuristica', () => {
     test('no se puede instanciar directamente', () => {
         expect(() => {
-            new ExperienciaTuristica([], 100, 10, 2, true);
+            new ExperienciaTuristica([], 100, 10, 2, true, TipoEstrategia.DEFAULT);
         }).toThrow("ExperienciaTuristica es una clase abstracta y no puede ser instanciada directamente.");
     });
 });
@@ -286,3 +287,73 @@ describe('Cobertura adicional y casos límite en Experiencias', () => {
         expect(() => excursion.removeListaReservas(fecha, 'SinCantidad')).not.toThrow();
     });
 }); 
+
+describe('Estrategias de Lista de Espera', () => {
+    const fecha = "2024-04-01";
+    
+    test('debe configurar y obtener correctamente la estrategia de lista de espera Default', () => {
+        const excursion = new ExcursionGuiada(
+            [fecha],
+            1000, 20, 4, true, 2, TipoEstrategia.DEFAULT
+        );
+
+        expect(excursion.getTipoEstrategia()).toBe(TipoEstrategia.DEFAULT);
+    });
+
+    test('debe configurar y obtener correctamente la estrategia de lista de espera Orden de Llegada Estricto', () => {
+        const excursion = new ExcursionGuiada(
+            [fecha],
+            1000, 20, 4, true, 2, TipoEstrategia.ORDEN_LLEGADA_ESTRICTO
+        );
+
+        expect(excursion.getTipoEstrategia()).toBe(TipoEstrategia.ORDEN_LLEGADA_ESTRICTO);
+    });
+
+    test('debe configurar y obtener correctamente la estrategia de lista de espera Completado Eficiente', () => {
+        const excursion = new ExcursionGuiada(
+            [fecha],
+            1000, 20, 4, true, 2, TipoEstrategia.COMPLETADO_EFICIENTE
+        );
+
+        expect(excursion.getTipoEstrategia()).toBe(TipoEstrategia.COMPLETADO_EFICIENTE);
+    });
+
+    test('debe modificar correctamente la estrategia de lista de espera a Orden de Llegada Estricto', () => {
+        const excursion = new ExcursionGuiada(
+            [fecha],
+            1000, 20, 4, true, 2, TipoEstrategia.DEFAULT
+        );
+        
+        excursion.setEstrategiaListaDeEspera(TipoEstrategia.ORDEN_LLEGADA_ESTRICTO);
+        expect(excursion.getTipoEstrategia()).toBe(TipoEstrategia.ORDEN_LLEGADA_ESTRICTO);
+    });
+
+    test('debe modificar correctamente la estrategia de lista de espera a Completado Eficiente', () => {
+        const excursion = new ExcursionGuiada(
+            [fecha],
+            1000, 20, 4, true, 2, TipoEstrategia.DEFAULT
+        );
+        
+        excursion.setEstrategiaListaDeEspera(TipoEstrategia.COMPLETADO_EFICIENTE);
+        expect(excursion.getTipoEstrategia()).toBe(TipoEstrategia.COMPLETADO_EFICIENTE);
+    });
+    
+    test('debe modificar correctamente la estrategia de lista de espera a Default', () => {
+        const excursion = new ExcursionGuiada(
+            [fecha],
+            1000, 20, 4, true, 2, TipoEstrategia.COMPLETADO_EFICIENTE
+        );
+        
+        excursion.setEstrategiaListaDeEspera(TipoEstrategia.DEFAULT);
+        expect(excursion.getTipoEstrategia()).toBe(TipoEstrategia.DEFAULT);
+    });
+
+    test('debe obtener correctamente la estrategia de lista de espera', () => {
+        const excursion = new ExcursionGuiada(
+            [fecha],
+            1000, 20, 4, true, 2, TipoEstrategia.COMPLETADO_EFICIENTE
+        );
+        
+        expect(excursion.getEstrategiaListaDeEspera()).toBeInstanceOf(EstrategiaCompletadoEficiente);
+    });
+});
