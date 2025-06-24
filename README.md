@@ -12,6 +12,8 @@ npm i
 npm run test:coverage
 ```
 
+![Test Coverage](coverage.png)
+
 ## Diagrama de Clases
 
 ![Class diagram](classDiagram.png)
