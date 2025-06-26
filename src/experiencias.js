@@ -1,4 +1,4 @@
-import { EstrategiaDefault, EstrategiaOrdenLlegadaEstricto, EstrategiaCompletadoEficiente } from './lista_espera_strategy.js';
+import { EstrategiaDefault, EstrategiaOrdenLlegadaEstricto, EstrategiaCompletadoEficiente } from './lista_espera.js';
 
 // Enumeración para los tipos de estrategia
 export const TipoEstrategia = {
