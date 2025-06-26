@@ -1,5 +1,12 @@
 import { Facturacion } from '../facturacion.js';
 import { PaqueteDeAventura } from '../paquete_de_aventura.js';
+import {
+    ValidadorPlazo,
+    ValidadorCUIT,
+    ValidadorTitularTransferencia,
+    ValidadorDescuento,
+    MedioDePago
+} from '../pagos.js';
 
 describe('Facturacion', () => {
     let facturacion;
@@ -56,23 +63,54 @@ describe('Facturacion', () => {
             facturacion.crearFactura(fecha, nombre);
         });
 
-        test('debe registrar un pago correctamente', () => {
-            const factura = facturacion.registrarPago(fecha, nombre, 1000);
-            expect(factura.saldoPendiente).toBe(1000);
-            expect(facturacion.pagos.has(fecha)).toBe(true);
-            expect(facturacion.pagos.get(fecha).has(nombre)).toBe(true);
+        test('debe registrar un pago en efectivo correctamente', () => {
+            const datosPago = { montoPagado: 2000 };
+            const { factura, resultado } = facturacion.registrarPago(fecha, nombre, 'efectivo', datosPago);
+            expect(factura.saldoPendiente).toBe(0);
+            expect(resultado.vuelto).toBe(0);
         });
 
-        test('debe lanzar error si no existe factura', () => {
+        test('debe lanzar error si el monto pagado en efectivo es insuficiente', () => {
+            const datosPago = { montoPagado: 1000 };
             expect(() => {
-                facturacion.registrarPago("2024-04-02", nombre, 1000);
-            }).toThrow("No existe factura para esta reserva");
+                facturacion.registrarPago(fecha, nombre, 'efectivo', datosPago);
+            }).toThrow('El monto pagado es insuficiente.');
         });
 
-        test('debe lanzar error si el monto excede el saldo', () => {
+        test('debe registrar un pago por transferencia correctamente', () => {
+            const datosPago = {
+                cuit: '20329642330',
+                banco: 'Banco Nación',
+                titular: nombre,
+                fechaPago: new Date(),
+            };
+            const { factura, resultado } = facturacion.registrarPago(fecha, nombre, 'transferencia', datosPago);
+            expect(factura.saldoPendiente).toBe(0);
+            expect(resultado.exito).toBe(true);
+        });
+
+        test('debe lanzar error si el CUIT es inválido en transferencia', () => {
+            const datosPago = {
+                cuit: '12345678901',
+                banco: 'Banco Nación',
+                titular: nombre,
+                fechaPago: new Date(),
+            };
             expect(() => {
-                facturacion.registrarPago(fecha, nombre, 3000);
-            }).toThrow("El monto excede el saldo pendiente");
+                facturacion.registrarPago(fecha, nombre, 'transferencia', datosPago);
+            }).toThrow('CUIT inválido');
+        });
+
+        test('debe lanzar error si el titular no coincide en transferencia', () => {
+            const datosPago = {
+                cuit: '20329642330',
+                banco: 'Banco Nación',
+                titular: 'Otro Nombre',
+                fechaPago: new Date(),
+            };
+            expect(() => {
+                facturacion.registrarPago(fecha, nombre, 'transferencia', datosPago);
+            }).toThrow('El titular de la cuenta no coincide');
         });
     });
 
@@ -112,7 +150,7 @@ describe('Facturacion', () => {
         beforeEach(() => {
             facturacion.crearFactura(fecha, nombre);
             facturacion.crearFactura(fecha, "María García");
-            facturacion.registrarPago(fecha, "María García", 2000);
+            facturacion.registrarPago(fecha, "María García", 'efectivo', { montoPagado: 2000 });
         });
 
         test('debe devolver solo las facturas con saldo pendiente', () => {
@@ -197,20 +235,16 @@ describe('Facturacion', () => {
         });
         
         test('no debe cancelar reservas pagadas', () => {
-            // Registrar un pago completo
-            facturacion.registrarPago(fecha, nombre, 2000);
-            
+            // Registrar un pago completo usando el nuevo flujo (efectivo)
+            facturacion.registrarPago(fecha, nombre, 'efectivo', { montoPagado: 2000 });
             // Ejecutar la cancelación automática
             const reservasCanceladas = facturacion.verificarYCancelarReservasVencidas();
-            
             // Verificar que no se canceló ninguna reserva
             expect(reservasCanceladas).toHaveLength(0);
-            
             // Verificar que la reserva sigue existiendo
             const reservas = experiencia.listaReservas.find(
                 r => r.fecha.getTime() === new Date(fecha).getTime()
             ).reservas;
-            
             const tieneReserva = reservas.some(r => {
                 return typeof r === 'object' ? r.nombre === nombre : r === nombre;
             });
@@ -229,5 +263,65 @@ describe('Facturacion', () => {
             expect(historial[0].fechaCancelacion).toBeInstanceOf(Date);
             expect(historial[0].motivo).toBe('Falta de pago en el plazo establecido');
         });
+    });
+});
+
+describe('Cobertura adicional de validadores y pagos', () => {
+    test('ValidadorPlazo permite pago justo en el límite', () => {
+        const val = new ValidadorPlazo();
+        const hoy = new Date();
+        const datos = {
+            fechaFactura: hoy,
+            fechaPago: new Date(hoy.getTime() + 7 * 24 * 60 * 60 * 1000),
+            plazoDias: 7
+        };
+        expect(() => val.validar(datos)).not.toThrow();
+    });
+
+    test('ValidadorCUIT falla por longitud incorrecta', () => {
+        const val = new ValidadorCUIT();
+        expect(() => val.validar({ cuit: '2032964233' })).toThrow('debe tener 11 dígitos');
+    });
+
+    test('ValidadorCUIT falla por dígito verificador incorrecto', () => {
+        const val = new ValidadorCUIT();
+        // CUIT con dígito verificador incorrecto
+        expect(() => val.validar({ cuit: '20329642331' })).toThrow('CUIT inválido: dígito verificador incorrecto.');
+    });
+
+    test('ValidadorCUIT falla por tipo de persona jurídica', () => {
+        const val = new ValidadorCUIT();
+        // CUIT de persona jurídica (30) con dígito verificador correcto: 30-70831801-5
+        expect(() => val.validar({ cuit: '30708318015' })).toThrow('Sólo se permite CUIT de persona física.');
+    });
+
+    test('ValidadorDescuento no lanza error si no hay descuento', () => {
+        const val = new ValidadorDescuento();
+        expect(() => val.validar({})).not.toThrow();
+    });
+
+    test('MedioDePago lanza error si se llama a pagar directamente', () => {
+        const medio = new MedioDePago();
+        expect(() => medio.pagar({})).toThrow('Método pagar() no implementado.');
+    });
+
+    test('Facturacion: error si tipo de pago no soportado', () => {
+        const fecha = '2024-04-01';
+        const nombre = 'Juan Pérez';
+        const actividades = [
+            { nombre: 'Rafting', disponibilidad: [fecha] },
+            { nombre: 'Trekking', disponibilidad: [fecha] }
+        ];
+        const experiencia = new PaqueteDeAventura(
+            [fecha],
+            2000,
+            15,
+            8,
+            true,
+            actividades
+        );
+        const facturacion = new Facturacion(experiencia);
+        facturacion.crearFactura(fecha, nombre);
+        expect(() => facturacion.registrarPago(fecha, nombre, 'tarjeta', {})).toThrow('Medio de pago no soportado');
     });
 }); 

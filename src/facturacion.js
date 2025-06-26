@@ -1,3 +1,5 @@
+import { PagoEfectivo, PagoTransferencia } from './pagos.js';
+
 export class Facturacion {
     constructor(experiencia) {
         this.experiencia = experiencia;
@@ -24,35 +26,56 @@ export class Facturacion {
         return factura;
     }
 
-    registrarPago(fecha, nombre, monto) {
+    /**
+     * Registrar un pago usando una estrategia de medio de pago (Strategy)
+     * Aplica una cadena de validaciones (Chain of Responsibility) según el medio.
+     * @param {string} fecha - Fecha de la reserva
+     * @param {string} nombre - Nombre del cliente
+     * @param {string} tipoPago - 'efectivo' | 'transferencia'
+     * @param {object} datosPago - Datos requeridos por el medio de pago
+     */
+    registrarPago(fecha, nombre, tipoPago, datosPago) {
         if (!this.facturas.has(fecha) || !this.facturas.get(fecha).has(nombre)) {
             throw new Error("No existe factura para esta reserva");
         }
-
         const factura = this.facturas.get(fecha).get(nombre);
-        
-        if (monto > factura.saldoPendiente) {
-            throw new Error("El monto excede el saldo pendiente");
+        let medio;
+        // Selección de estrategia de pago
+        if (tipoPago === 'efectivo') {
+            medio = new PagoEfectivo();
+        } else if (tipoPago === 'transferencia') {
+            medio = new PagoTransferencia();
+        } else {
+            throw new Error('Medio de pago no soportado');
         }
-
+        // Preparar datos para la cadena de validadores
+        const datos = {
+            ...datosPago,
+            fechaFactura: factura.fechaCreacion,
+            fechaPago: datosPago.fechaPago || new Date(),
+            plazoDias: this.plazoPago,
+            montoFactura: factura.saldoPendiente,
+            nombreCliente: nombre
+        };
+        // Ejecutar pago (puede lanzar error si falla una validación)
+        const resultado = medio.pagar(datos);
+        // Registrar el pago si todo ok
         const pago = {
             nombre: nombre,
-            monto: monto,
-            fechaPago: new Date()
+            monto: factura.saldoPendiente,
+            fechaPago: datos.fechaPago,
+            tipoPago,
+            detalles: datosPago
         };
-
         if (!this.pagos.has(fecha)) {
             this.pagos.set(fecha, new Map());
         }
         this.pagos.get(fecha).set(nombre, pago);
-
-        factura.saldoPendiente -= monto;
-
+        factura.saldoPendiente = 0;
         if (factura.saldoPendiente === 0) {
             console.log(`Factura pagada completamente para ${nombre} en la fecha ${fecha}`);
         }
-
-        return factura;
+        return { factura, resultado };
     }
 
     obtenerSaldoPendiente(fecha, nombre) {

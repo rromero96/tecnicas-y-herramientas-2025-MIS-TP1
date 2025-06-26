@@ -32,7 +32,10 @@ describe('Reserva', () => {
             fecha,
             0,
             1,
-            2000
+            2000,
+            '20329642330', // cuit
+            'Banco Nación', // banco
+            nombre // titular
         );
     });
 
@@ -53,6 +56,9 @@ describe('Reserva', () => {
             expect(reserva.cantidadPersonas).toBe(1);
             expect(reserva.pagado).toBe(false);
             expect(reserva.plazoLimite).toBe(7);
+            expect(reserva.cuit).toBe('20329642330');
+            expect(reserva.banco).toBe('Banco Nación');
+            expect(reserva.titular).toBe(nombre);
         });
 
         test('debe lanzar error si la experiencia no es válida', () => {

@@ -48,6 +48,43 @@ Implementa una política estricta de "primero en llegar, primero en ser atendido
 #### `EstrategiaCompletadoEficiente`
 Implementa una estrategia que prioriza la utilización eficiente de los cupos disponibles. Busca la combinación de reservas que maximice el uso de los cupos liberados, incluso si esto significa no respetar estrictamente el orden de llegada. Primero busca coincidencias exactas (una sola reserva que llene todos los cupos), luego combinaciones de varias reservas, y si no encuentra una combinación exacta, elige la que deja menos cupos sin usar.
 
+### Pagos y Facturación
+
+El sistema permite registrar pagos de reservas utilizando diferentes medios de pago, cada uno con sus propias validaciones y reglas. Los medios de pago implementados actualmente son:
+- **Efectivo**: Se indica el monto pagado y se calcula el vuelto.
+- **Transferencia**: Se requiere el CUIT del cliente, el banco y el titular de la cuenta. Se valida el CUIT según las reglas argentinas y que el titular coincida con el cliente.
+
+#### Validaciones y Reglas
+Antes de confirmar un pago, se aplican distintas validaciones en orden (plazo, CUIT, descuentos, titular, etc.). Si alguna validación falla, el pago no se efectúa.
+
+#### Ejemplo de uso
+```js
+// Registrar un pago en efectivo
+facturacion.registrarPago(fecha, nombre, 'efectivo', { montoPagado: 2000 });
+
+// Registrar un pago por transferencia
+facturacion.registrarPago(fecha, nombre, 'transferencia', {
+  cuit: '20329642330',
+  banco: 'Banco Nación',
+  titular: nombre,
+  fechaPago: new Date(),
+});
+```
+
+#### Extensibilidad
+El sistema está preparado para agregar nuevos medios de pago (por ejemplo, tarjeta de crédito) de forma sencilla. Solo es necesario crear una nueva clase que extienda `MedioDePago` y defina su cadena de validadores.
+
+### Patrones de Diseño en Pagos
+
+#### Patrón Strategy
+Cada medio de pago es una estrategia diferente (por ejemplo, `PagoEfectivo`, `PagoTransferencia`). Esto permite intercambiar fácilmente la lógica de pago sin modificar la clase principal de facturación.
+
+#### Patrón Chain of Responsibility
+Las validaciones de pago (plazo, CUIT, titular, etc.) se implementan como una cadena de responsabilidad. Cada validador puede aprobar o rechazar el pago y pasar al siguiente.
+
+### Comentarios en el código
+Se han agregado comentarios en español en las clases y métodos principales para facilitar la comprensión y el mantenimiento del código.
+
 ## Patrones de Diseño Implementados
 
 ### Patrón Strategy
