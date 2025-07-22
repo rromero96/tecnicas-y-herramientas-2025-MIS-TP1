@@ -1,7 +1,7 @@
-import { ExperienciaTuristica, TipoEstrategia } from '../experiencias.js';
-import { ExcursionGuiada } from '../excursion_guiada.js';
-import { PaqueteDeAventura } from '../paquete_de_aventura.js';
-import { EstrategiaCompletadoEficiente } from '../lista_espera.js';
+import { ExperienciaTuristica, TipoEstrategia } from '../experiencias/experiencias.js';
+import { ExcursionGuiada } from '../experiencias/excursion_guiada.js';
+import { PaqueteDeAventura } from '../experiencias/paquete_de_aventura.js';
+import { EstrategiaCompletadoEficiente } from '../lista_espera/lista_espera.js';
 
 describe('ExperienciaTuristica', () => {
     test('no se puede instanciar directamente', () => {

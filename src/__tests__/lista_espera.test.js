@@ -1,4 +1,4 @@
-import {  EstrategiaListaEspera, EstrategiaDefault,   EstrategiaOrdenLlegadaEstricto,  EstrategiaCompletadoEficiente } from '../lista_espera.js';
+import {  EstrategiaListaEspera, EstrategiaDefault,   EstrategiaOrdenLlegadaEstricto,  EstrategiaCompletadoEficiente } from '../lista_espera/lista_espera.js';
 
 
 class ExperienciaMock {
