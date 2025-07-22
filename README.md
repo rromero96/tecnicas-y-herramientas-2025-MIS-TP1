@@ -97,3 +97,25 @@ Implementado en la clase `ExperienciaTuristica`, que define el "esqueleto" de la
 
 ### Patrón Factory Method
 Utilizado en `ExperienciaTuristica` para crear e instanciar objetos de estrategia apropiados a través del método `setEstrategiaListaDeEspera()`. Crea las estrategias concretas basadas en el tipo especificado.
+
+### Refactoring
+
+Utilizamos la herramienta Sonar Qube para refactoring el código, eliminando los smells y errores de calidad.
+
+A continuacion vamos a ver una foto en la que se ven los resultados del refactoring habiendo eliminado todos los smells y errores de calidad.
+
+Entre los smells encontramos
+- cognitive complexity
+- duplicated code
+- long method
+- long parameter list
+- brain method
+
+Entre los refactorings
+- extract method
+- early returns
+- remove parameters
+- remove unused parameters
+
+
+![Refactoring](refactoring.png)
