@@ -1,4 +1,4 @@
-import { ExperienciaTuristica } from './experiencias.js';
+import { ExperienciaTuristica } from '../experiencias/experiencias.js';
 
 export class Reserva {
     constructor(nombre, email, experiencia, plazoLimite, fecha, descuentoGrupal, cantidadPersonas, precio, cuit = null, banco = null, titular = null) {

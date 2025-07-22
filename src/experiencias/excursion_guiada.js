@@ -1,4 +1,4 @@
-import { ExperienciaTuristica, TipoEstrategia } from './experiencias.js';
+import { ExperienciaTuristica } from './experiencias.js';
 
 export class ExcursionGuiada extends ExperienciaTuristica {
     constructor(disponibilidad, precio, capacidadMaxima, duracion, requiereGuia, guia,tipoEstrategia) {

@@ -1,6 +1,6 @@
 import { Reserva } from '../reservas.js';
-import { PaqueteDeAventura } from '../paquete_de_aventura.js';
-import { TipoEstrategia } from '../experiencias.js';
+import { PaqueteDeAventura } from '../../experiencias/paquete_de_aventura.js';
+import { TipoEstrategia } from '../../experiencias/experiencias.js';
 
 describe('Reserva', () => {
     let reserva;
