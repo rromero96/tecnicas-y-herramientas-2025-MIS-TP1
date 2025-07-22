@@ -38,7 +38,7 @@ export class ValidadorCUIT extends ValidadorPago {
             throw new Error('CUIT inválido: debe tener 11 dígitos.');
         }
         // Verifica que tenga el formato correcto con los prefijos válidos
-        if (!/^(20|23|24|27|30|33|34)[0-9]{9}$/.test(cuit)) {
+        if (!/^(20|23|24|27|30|33|34)\d{9}$/.test(cuit)) {
             throw new Error('CUIT inválido: formato incorrecto.');
         }
         // Verifica dígito verificador
