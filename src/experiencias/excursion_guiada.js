@@ -32,6 +32,9 @@ export class ExcursionGuiada extends ExperienciaTuristica {
         try {
             this._parsearFecha(fecha);
         } catch (e) {
+            // Registrar detalles adicionales del error para depuración
+            console.error(`Error al validar fecha '${fecha}': ${e.message}`);
+            // Mantener el mensaje de error original para compatibilidad con las pruebas
             throw new Error("La fecha proporcionada no es válida");
         }
         if (this._existeFechaEnDisponibilidad(fecha)) {

@@ -1,7 +1,7 @@
 import { ExperienciaTuristica } from '../experiencias/experiencias.js';
 
 export class Reserva {
-    constructor(nombre, email, experiencia, plazoLimite, fecha, descuentoGrupal, cantidadPersonas, precio, cuit = null, banco = null, titular = null) {
+    constructor(nombre, email, experiencia, plazoLimite, fecha, precio, options = {}) {
         if (!(experiencia instanceof ExperienciaTuristica)) {
             throw new Error("El atributo 'experiencia' debe ser una instancia de ExperienciaTuristica o sus clases derivadas.");
         }
@@ -10,15 +10,15 @@ export class Reserva {
         this.experiencia = experiencia;
         this.fecha = fecha;
         this.fechaReserva = new Date();
-        this.descuentoGrupal = descuentoGrupal;
-        this.cantidadPersonas = cantidadPersonas || 1;
-        this.isGrupo = this.cantidadPersonas > 1;
-        this.tarifaReserva = (precio * (1 - (descuentoGrupal / 100))) * 0.3 * this.cantidadPersonas;
-        this.pagado = false;
         this.plazoLimite = plazoLimite;
-        this.cuit = cuit;
-        this.banco = banco;
-        this.titular = titular;
+        this.descuentoGrupal = options.descuentoGrupal;
+        this.cantidadPersonas = options.cantidadPersonas || 1;
+        this.isGrupo = this.cantidadPersonas > 1;
+        this.tarifaReserva = (precio * (1 - (this.descuentoGrupal / 100))) * 0.3 * this.cantidadPersonas;
+        this.pagado = false;
+        this.cuit = options.datosPago.cuit || null;
+        this.banco = options.datosPago.banco || null;
+        this.titular = options.datosPago.titular || null;
     }
 
     confirmar() {
