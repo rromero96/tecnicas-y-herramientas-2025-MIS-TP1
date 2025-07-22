@@ -32,7 +32,7 @@ export class ExcursionGuiada extends ExperienciaTuristica {
         try {
             this._parsearFecha(fecha);
         } catch (e) {
-            throw e;
+            throw new Error("La fecha proporcionada no es válida");
         }
         if (this._existeFechaEnDisponibilidad(fecha)) {
             throw new Error("La fecha ya está registrada en la disponibilidad");
