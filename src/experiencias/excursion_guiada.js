@@ -29,9 +29,8 @@ export class ExcursionGuiada extends ExperienciaTuristica {
     }
     
     agregarFechaEnDisponibilidad(fecha) {
-        let fechaBuscada;
         try {
-            fechaBuscada = this._parsearFecha(fecha);
+            this._parsearFecha(fecha);
         } catch (e) {
             throw e;
         }
