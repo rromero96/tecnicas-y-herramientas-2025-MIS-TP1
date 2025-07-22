@@ -1,4 +1,4 @@
-import { ExcursionGuiada } from '../experiencias/excursion_guiada.js';
+import { ExcursionGuiada } from '../excursion_guiada.js';
 
 describe('ExcursionGuiada', () => {
     let excursion;

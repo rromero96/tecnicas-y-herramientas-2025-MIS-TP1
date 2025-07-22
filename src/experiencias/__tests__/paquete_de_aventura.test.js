@@ -1,4 +1,4 @@
-import { PaqueteDeAventura } from '../experiencias/paquete_de_aventura.js';
+import { PaqueteDeAventura } from '../paquete_de_aventura.js';
 
 describe('PaqueteDeAventura', () => {
     let paquete;

@@ -6,7 +6,7 @@ import {
     PagoEfectivo,
     PagoTransferencia,
     MedioDePago
-} from '../facturacion/pagos.js';
+} from '../pagos.js';
 
 describe('Validadores de Pago', () => {
     test('ValidadorPlazo: pago dentro del plazo', () => {

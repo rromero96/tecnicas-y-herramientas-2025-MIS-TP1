@@ -1,12 +1,12 @@
-import { Facturacion } from '../facturacion/facturacion.js';
-import { PaqueteDeAventura } from '../experiencias/paquete_de_aventura.js';
+import { Facturacion } from '../facturacion.js';
+import { PaqueteDeAventura } from '../../experiencias/paquete_de_aventura.js';
 import {
     ValidadorPlazo,
     ValidadorCUIT,
     ValidadorTitularTransferencia,
     ValidadorDescuento,
     MedioDePago
-} from '../facturacion/pagos.js';
+} from '../pagos.js';
 
 describe('Facturacion', () => {
     let facturacion;
