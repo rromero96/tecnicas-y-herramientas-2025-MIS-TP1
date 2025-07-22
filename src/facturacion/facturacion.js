@@ -59,7 +59,6 @@ export class Facturacion {
         };
         // Ejecutar pago (puede lanzar error si falla una validación)
         const resultado = medio.pagar(datos);
-        // Registrar el pago si todo ok
         const pago = {
             nombre: nombre,
             monto: factura.saldoPendiente,
