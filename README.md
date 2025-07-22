@@ -1,3 +1,5 @@
+[![SonarQube Cloud](https://sonarcloud.io/images/project_badges/sonarcloud-light.svg)](https://sonarcloud.io/summary/new_code?id=rromero96_tecnicas-y-herramientas-2025-MIS-TP1)
+
 # Sistema de Gestión de Experiencias Turísticas
 
 ## Grupo 07

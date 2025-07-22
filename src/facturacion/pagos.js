@@ -33,12 +33,13 @@ export class ValidadorPlazo extends ValidadorPago {
 export class ValidadorCUIT extends ValidadorPago {
     validar(datos) {
         const { cuit } = datos;
-        // Verifica formato y longitud
-        if (!/^20|23|24|27|30|33|34[0-9]{9}$/.test(cuit)) {
-            throw new Error('CUIT inválido: formato incorrecto.');
-        }
+        // Verifica primero la longitud y luego el formato
         if (cuit.length !== 11) {
             throw new Error('CUIT inválido: debe tener 11 dígitos.');
+        }
+        // Verifica que tenga el formato correcto con los prefijos válidos
+        if (!/^(20|23|24|27|30|33|34)\d{9}$/.test(cuit)) {
+            throw new Error('CUIT inválido: formato incorrecto.');
         }
         // Verifica dígito verificador
         const mult = [5,4,3,2,7,6,5,4,3,2];
