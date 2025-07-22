@@ -11,8 +11,9 @@ export class PaqueteDeAventura extends ExperienciaTuristica {
     }
 
     getDisponibilidad(fecha) {
+        let fechaBuscada;
         try {
-           var fechaBuscada = this._parsearFecha(fecha);
+            fechaBuscada = this._parsearFecha(fecha);
         } catch (e) {
             console.log(e.message);
             return false;
@@ -40,6 +41,7 @@ export class PaqueteDeAventura extends ExperienciaTuristica {
         try {
           this._parsearFecha(fecha);
         } catch (e) {
+            console.error(`Error al validar fecha '${fecha}': ${e.message}`);
             throw new Error("La fecha proporcionada no es válida");
         }
         if (this._existeFechaEnDisponibilidad(fecha)) {
