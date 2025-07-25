@@ -26,7 +26,7 @@ describe('PaqueteDeAventura', () => {
             expect(paquete.precioTotal).toBe(2000);
             expect(paquete.capacidadMaxima).toBe(15);
             expect(paquete.duracion).toBe(8);
-            expect(paquete.requiereGuia).toBe(true);
+            expect(paquete.requiereGuia()).toBe(true);
         });
 
         test('debe inicializar las listas de reservas', () => {

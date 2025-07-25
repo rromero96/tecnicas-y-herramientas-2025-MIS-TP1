@@ -46,6 +46,6 @@ export class ExcursionGuiada extends ExperienciaTuristica {
     }
 
     requiereGuia() {
-        return Boolean(this.requiereGuia);
+        return Boolean(this._requiereGuia);
     }
 }
