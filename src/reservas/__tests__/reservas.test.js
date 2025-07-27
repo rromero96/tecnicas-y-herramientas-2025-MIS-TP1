@@ -1,6 +1,7 @@
 import { Reserva } from '../reservas.js';
 import { PaqueteDeAventura } from '../../experiencias/paquete_de_aventura.js';
 import { TipoEstrategia } from '../../experiencias/experiencias.js';
+import { ExcursionGuiada } from '../../experiencias/excursion_guiada.js';
 
 describe('Reserva', () => {
     let reserva;
@@ -23,7 +24,7 @@ describe('Reserva', () => {
             TipoEstrategia.DEFAULT
         );
         // Forzar requiereGuia como método en caso de que se sobrescriba
-        experiencia.requiereGuia = () => Boolean(experiencia.requiereGuia);
+        experiencia.requiereGuia = () => Boolean(experiencia._requiereGuia);
         reserva = new Reserva(
             nombre,
             'juan.perez@example.com',
@@ -63,6 +64,28 @@ describe('Reserva', () => {
             expect(reserva.cuit).toBe('20329642330');
             expect(reserva.banco).toBe('Banco Nación');
             expect(reserva.titular).toBe(nombre);
+        });
+        
+        test('debe manejar correctamente opciones incompletas', () => {
+            const reservaMinima = new Reserva(
+                nombre,
+                'email@example.com',
+                experiencia,
+                7,
+                fecha,
+                2000,
+                {
+                    // Sin descuentoGrupal
+                    // Sin cantidadPersonas
+                    datosPago: {} // Objeto vacío para datosPago
+                }
+            );
+            
+            expect(reservaMinima.cantidadPersonas).toBe(1); // Valor por defecto
+            expect(reservaMinima.descuentoGrupal).toBeUndefined();
+            expect(reservaMinima.cuit).toBeNull();
+            expect(reservaMinima.banco).toBeNull();
+            expect(reservaMinima.titular).toBeNull();
         });
 
         test('debe lanzar error si la experiencia no es válida', () => {
@@ -206,6 +229,39 @@ describe('Reserva', () => {
             expect(reservaConfirmada).toBeTruthy();
             expect(reservaConfirmada.email).toBe("maria@example.com");
         });
+
+        test('debe manejar errores durante la cancelación', () => {
+            // Crear una experiencia que lance un error al remover reservas
+            const experienciaProblematica = mockExperienciaConMetodo();
+            experienciaProblematica.removeListaReservas = () => {
+                throw new Error("Error simulado al remover reserva");
+            };
+            
+            const reservaProblematica = new Reserva(
+                nombre,
+                'juan.perez@example.com',
+                experienciaProblematica,
+                7,
+                fecha,
+                2000,
+                {
+                    descuentoGrupal: 0,
+                    cantidadPersonas: 1,
+                    datosPago: {}
+                }
+            );
+            
+            const originalConsoleError = console.error;
+            const errorCalls = [];
+            console.error = (...args) => {
+                errorCalls.push(args.join(' '));
+            };
+            
+            expect(() => reservaProblematica.cancelar()).toThrow("Error simulado al remover reserva");
+            expect(errorCalls.some(call => call.includes("Error al procesar la cancelacion"))).toBe(true);
+            
+            console.error = originalConsoleError;
+        });
     });
 
     describe('agregarListaEspera', () => {
@@ -215,6 +271,7 @@ describe('Reserva', () => {
                 experiencia.addListaReservas(fecha, `Cliente ${i}`);
             }
             
+            // Crear una nueva reserva para agregar a la lista de espera
             const reservaEspera = new Reserva(
                 nombre,
                 'juan.perez@example.com',
@@ -232,19 +289,60 @@ describe('Reserva', () => {
                     }
                 }
             );
+            
+            const originalConsoleLog = console.log;
+            const logCalls = [];
+            console.log = (...args) => {
+                logCalls.push(args.join(' '));
+            };
+            
             reservaEspera.agregarListaEspera();
             
-            const esperaFecha = experiencia.listaDeEspera.find(
-                r => r.fecha.getTime() === new Date(fecha).getTime()
-            );
-            
-            // Buscar la reserva en la lista de espera
-            const reservaEnEspera = esperaFecha.reservas.find(r => {
+            // Verificar que se agregó a la lista de espera
+            const listaEspera = experiencia.getListaEspera(fecha);
+            const reservaEnEspera = listaEspera.find(r => {
                 return typeof r === 'object' && r.nombre === nombre;
             });
             
             expect(reservaEnEspera).toBeTruthy();
             expect(reservaEnEspera.email).toBe('juan.perez@example.com');
+            expect(logCalls.some(call => call.includes("Agregado a la lista de espera"))).toBe(true);
+            
+            console.log = originalConsoleLog;
+        });
+        
+        test('debe manejar errores al agregar a la lista de espera', () => {
+            // Crear una experiencia que lance un error al agregar a la lista de espera
+            const experienciaProblematica = mockExperienciaConMetodo();
+            experienciaProblematica.getDisponibilidad = () => false;
+            experienciaProblematica.addListaEspera = () => {
+                throw new Error("Error simulado al agregar a la lista de espera");
+            };
+            
+            const reservaProblematica = new Reserva(
+                nombre,
+                'juan.perez@example.com',
+                experienciaProblematica,
+                7,
+                fecha,
+                2000,
+                {
+                    descuentoGrupal: 0,
+                    cantidadPersonas: 1,
+                    datosPago: {}
+                }
+            );
+            
+            const originalConsoleError = console.error;
+            const errorCalls = [];
+            console.error = (...args) => {
+                errorCalls.push(args.join(' '));
+            };
+            
+            expect(() => reservaProblematica.agregarListaEspera()).toThrow("Error simulado al agregar a la lista de espera");
+            expect(errorCalls.some(call => call.includes("Error al agregar a la lista de espera"))).toBe(true);
+            
+            console.error = originalConsoleError;
         });
 
         test('debe lanzar error si la fecha está disponible', () => {
@@ -261,40 +359,66 @@ describe('Reserva', () => {
                 experiencia.addListaReservas(fecha, `Cliente ${i}`);
             }
             
-            // Primero agregar a la lista de espera
-            const reservaEspera = new Reserva(
+            // Agregar a la lista de espera
+            experiencia.addListaEspera(fecha, {
+                nombre: nombre,
+                email: 'juan.perez@example.com',
+                cantidadPersonas: 1
+            });
+            
+            const originalConsoleLog = console.log;
+            const logCalls = [];
+            console.log = (...args) => {
+                logCalls.push(args.join(' '));
+            };
+            
+            // Eliminar de la lista de espera
+            reserva.eliminarListaEspera();
+            
+            // Verificar que se eliminó de la lista de espera
+            const listaEspera = experiencia.getListaEspera(fecha);
+            const reservaEnEspera = listaEspera.find(r => {
+                return typeof r === 'object' && r.nombre === nombre;
+            });
+            
+            expect(reservaEnEspera).toBeFalsy();
+            expect(logCalls.some(call => call.includes("Eliminado de la lista de espera"))).toBe(true);
+            
+            console.log = originalConsoleLog;
+        });
+        
+        test('debe manejar errores al eliminar de la lista de espera', () => {
+            // Crear una experiencia que lance un error al eliminar de la lista de espera
+            const experienciaProblematica = mockExperienciaConMetodo();
+            experienciaProblematica.removeListaEspera = () => {
+                throw new Error("Error simulado al eliminar de la lista de espera");
+            };
+            
+            const reservaProblematica = new Reserva(
                 nombre,
                 'juan.perez@example.com',
-                experiencia,
+                experienciaProblematica,
                 7,
                 fecha,
                 2000,
                 {
                     descuentoGrupal: 0,
                     cantidadPersonas: 1,
-                    datosPago: {
-                        cuit: '20329642330',
-                        banco: 'Banco Nación',
-                        titular: nombre
-                    }
+                    datosPago: {}
                 }
             );
-            reservaEspera.agregarListaEspera();
             
-            // Luego eliminar
-            reservaEspera.eliminarListaEspera();
+            const originalConsoleError = console.error;
+            const errorCalls = [];
+            console.error = (...args) => {
+                errorCalls.push(args.join(' '));
+            };
             
-            const esperaFecha = experiencia.listaDeEspera.find(
-                r => r.fecha.getTime() === new Date(fecha).getTime()
-            );
+            expect(() => reservaProblematica.eliminarListaEspera()).toThrow("Error simulado al eliminar de la lista de espera");
+            expect(errorCalls.some(call => call.includes("Error al eliminar de la lista de espera"))).toBe(true);
             
-            // Verificar que no hay reservas con ese nombre en la lista de espera
-            const tieneReserva = esperaFecha.reservas.some(r => {
-                return typeof r === 'object' ? r.nombre === nombre : r === nombre;
-            });
-            
-            expect(tieneReserva).toBe(false);
-        });
+            console.error = originalConsoleError;
+        });    
     });
 
     describe('pagar', () => {
@@ -319,42 +443,73 @@ describe('Reserva', () => {
 
     describe('Cobertura adicional y casos límite', () => {
         test('debe lanzar error si no hay guías disponibles (entorno real)', () => {
-            const experienciaSinGuias = new PaqueteDeAventura(
+            // Guardar el entorno original
+            const originalEnv = process.env.NODE_ENV;
+            // Cambiar a entorno no-test
+            process.env.NODE_ENV = 'production';
+            
+            const excursion = new ExcursionGuiada(
                 [fecha],
-                2000,
+                1000,
                 10,
-                8,
+                4,
                 true,
-                actividades
+                0 // Sin guías disponibles
             );
-            // Simular método para requerir guía y sin guías disponibles
-            experienciaSinGuias.requiereGuia = () => true;
-            experienciaSinGuias.getGuias = () => 0;
-            const reservaSinGuia = new Reserva(
-                'Cliente Sin Guia',
-                'sin.guia@example.com',
-                experienciaSinGuias,
+            
+            const reservaExcursion = new Reserva(
+                nombre,
+                'juan.perez@example.com',
+                excursion,
+                7,
+                fecha,
+                1000,
+                {
+                    descuentoGrupal: 0,
+                    cantidadPersonas: 1,
+                    datosPago: {}
+                }
+            );
+            
+            expect(() => reservaExcursion.confirmar()).toThrow("No hay guías disponibles para la fecha seleccionada.");
+            
+            // Restaurar el entorno original
+            process.env.NODE_ENV = originalEnv;
+        });
+        
+        test('debe manejar errores en el método confirmar', () => {
+            // Crear una experiencia que lance un error al agregar reservas
+            const experienciaProblematica = mockExperienciaConMetodo();
+            experienciaProblematica.addListaReservas = () => {
+                throw new Error("Error simulado al agregar reserva");
+            };
+            
+            const reservaProblematica = new Reserva(
+                nombre,
+                'juan.perez@example.com',
+                experienciaProblematica,
                 7,
                 fecha,
                 2000,
                 {
                     descuentoGrupal: 0,
                     cantidadPersonas: 1,
-                    datosPago: {
-                        cuit: '20329642330',
-                        banco: 'Banco Nación',
-                        titular: 'Cliente Sin Guia'
-                    }
+                    datosPago: {}
                 }
             );
-            const originalEnv = process.env.NODE_ENV;
-            process.env.NODE_ENV = 'production';
-            expect(() => {
-                reservaSinGuia.confirmar();
-            }).toThrow("No hay guías disponibles para la fecha seleccionada.");
-            process.env.NODE_ENV = originalEnv;
+            
+            const originalConsoleError = console.error;
+            const errorCalls = [];
+            console.error = (...args) => {
+                errorCalls.push(args.join(' '));
+            };
+            
+            expect(() => reservaProblematica.confirmar()).toThrow("Error simulado al agregar reserva");
+            expect(errorCalls.some(call => call.includes("Error al agregar la reserva"))).toBe(true);
+            
+            console.error = originalConsoleError;
         });
-
+        
         test('debe cancelar correctamente cuando la lista de espera está vacía', () => {
             reserva.confirmar();
             // No hay nadie en lista de espera

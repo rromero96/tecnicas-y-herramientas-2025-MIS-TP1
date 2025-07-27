@@ -16,7 +16,7 @@ export class ExperienciaTuristica {
         this.precioTotal = precio // int
         this.capacidadMaxima = capacidadMaxima 
         this.duracion = duracion // en horas
-        this.requiereGuia = requiereGuia // bool
+        this._requiereGuia = requiereGuia // bool
         this.listaReservas = this.disponibilidad.map(fecha => ({
             fecha: new Date(fecha), 
             reservas: [] 
@@ -204,7 +204,7 @@ export class ExperienciaTuristica {
     }
 
     requiereGuia() {
-        return Boolean(this.requiereGuia);
+        return Boolean(this._requiereGuia);
     }
 
     setEstrategiaListaDeEspera(tipoEstrategia) {

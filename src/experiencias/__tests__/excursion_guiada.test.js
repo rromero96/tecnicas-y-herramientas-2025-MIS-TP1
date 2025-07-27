@@ -22,7 +22,7 @@ describe('ExcursionGuiada', () => {
             expect(excursion.precioTotal).toBe(1000);
             expect(excursion.capacidadMaxima).toBe(20);
             expect(excursion.duracion).toBe(4);
-            expect(excursion.requiereGuia).toBe(true);
+            expect(excursion.requiereGuia()).toBe(true);
         });
 
         test('debe inicializar las listas de reservas', () => {

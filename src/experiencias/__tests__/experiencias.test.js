@@ -33,7 +33,7 @@ describe('ExcursionGuiada', () => {
             expect(excursion.precioTotal).toBe(1000);
             expect(excursion.capacidadMaxima).toBe(20);
             expect(excursion.duracion).toBe(4);
-            expect(excursion.requiereGuia).toBe(true);
+            expect(excursion.requiereGuia()).toBe(true);
         });
 
         test('debe inicializar las listas de reservas', () => {
@@ -122,7 +122,7 @@ describe('PaqueteDeAventura', () => {
             expect(paquete.precioTotal).toBe(2000);
             expect(paquete.capacidadMaxima).toBe(15);
             expect(paquete.duracion).toBe(8);
-            expect(paquete.requiereGuia).toBe(true);
+            expect(paquete.requiereGuia()).toBe(true);
         });
 
         test('debe inicializar las listas de reservas', () => {

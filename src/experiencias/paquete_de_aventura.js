@@ -60,6 +60,6 @@ export class PaqueteDeAventura extends ExperienciaTuristica {
     }
 
     requiereGuia() {
-        return Boolean(this.requiereGuia);
+        return Boolean(this._requiereGuia);
     }
 }
