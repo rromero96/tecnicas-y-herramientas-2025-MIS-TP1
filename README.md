@@ -119,3 +119,20 @@ Entre los refactorings
 
 
 ![Refactoring](refactoring.png)
+
+## Architectural Decision Records (ADRs)
+
+Este proyecto documenta las decisiones arquitectónicas importantes utilizando Architectural Decision Records (ADRs). Los ADRs proporcionan un registro histórico de las decisiones de diseño, incluyendo el contexto, las opciones consideradas y las consecuencias de cada decisión.
+
+### ADRs Documentados
+
+Los ADRs están organizados en el directorio [`docs/decisions/`](docs/decisions/) y incluyen:
+
+- [ADR-0000: Use Markdown Architectural Decision Records](docs/decisions/0000-use-markdown-architectural-decision-records.md)
+- [ADR-0001: Adoptar Clean Architecture](docs/decisions/0001-adoptar-clean-architecture.md)
+- [ADR-0002: Estructura de Capas Clean Architecture](docs/decisions/0002-estructura-de-capas-clean-architecture.md)
+- [ADR-0003: Estrategia de Migración y Compatibilidad](docs/decisions/0003-estrategia-de-migracion-y-compatibilidad.md)
+- [ADR-0004: Patrón Estrategia Lista Espera](docs/decisions/0004-patron-estrategia-lista-espera.md)
+- [ADR-0005: Servicio Facturación](docs/decisions/0005-servicio-facturacion.md)
+
+Para más información sobre cómo crear nuevos ADRs, consulta el [README de decisiones](docs/decisions/README.md).

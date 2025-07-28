@@ -175,7 +175,7 @@ describe('Facturacion', () => {
             experiencia.addListaReservas(fecha, nombre);
             
             // Crear una factura con fecha de vencimiento en el pasado
-            const factura = facturacion.crearFactura(fecha, nombre);
+            facturacion.crearFactura(fecha, nombre);
             
             // Modificar la fecha de vencimiento para que esté en el pasado
             const fechaPasada = new Date();
@@ -351,7 +351,6 @@ describe('Cobertura adicional de validadores y pagos', () => {
 
     test('Facturacion: error al registrar pago sin factura existente', () => {
         const fecha = '2024-04-01';
-        const nombre = 'Juan Pérez';
         const actividades = [
             { nombre: 'Rafting', disponibilidad: [fecha] },
             { nombre: 'Trekking', disponibilidad: [fecha] }

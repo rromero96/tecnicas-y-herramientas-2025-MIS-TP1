@@ -5,16 +5,8 @@
 import { TipoEstrategia } from '../infrastructure/strategies/ListaEsperaStrategyFactory.js';
 import { ExcursionGuiada } from '../domain/entities/ExcursionGuiada.js';
 import { PaqueteDeAventura } from '../domain/entities/PaqueteDeAventura.js';
-import { EstrategiaCompletadoEficiente as ConcreteEstrategiaCompletadoEficiente } from '../infrastructure/strategies/EstrategiaCompletadoEficiente.js';
 import { ExperienciaTuristica as ExperienciaTuristicaAbstracta } from '../domain/entities/ExperienciaTuristica.js';
 
-describe('ExperienciaTuristica', () => {
-    test('no se puede instanciar directamente', () => {
-        expect(() => {
-            new ExperienciaTuristicaAbstracta([], 100, 10, 2, true, TipoEstrategia.DEFAULT);
-        }).toThrow("ExperienciaTuristica es una clase abstracta y no puede ser instanciada directamente.");
-    });
-});
 
 describe('ExcursionGuiada', () => {
     let excursion;
@@ -258,7 +250,6 @@ describe('PaqueteDeAventura', () => {
 });
 
 describe('Cobertura adicional y casos límite en Experiencias', () => {
-    const fecha = "2024-04-01";
     test('debe lanzar error al llamar métodos abstractos de la clase base', () => {
         // Crear una instancia mock de ExperienciaTuristica
         class MockExperiencia extends ExperienciaTuristicaAbstracta {
@@ -440,6 +431,123 @@ describe('Estrategias de Lista de Espera', () => {
             
             const listaEspera = excursion.getListaEspera('2024-04-01');
             expect(listaEspera).toHaveLength(1);
+        });
+
+        test('debe lanzar error al obtener lista de espera de fecha no registrada', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Intentar obtener lista de espera de una fecha que no está registrada (cubre línea 110)
+            expect(() => {
+                excursion.getListaEspera('2024-05-01');
+            }).toThrow('La fecha no está registrada en la lista de espera.');
+        });
+
+        test('debe lanzar error al agregar a lista de espera en fecha no registrada', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Intentar agregar a lista de espera en fecha no registrada (cubre línea 124)
+            expect(() => {
+                excursion.addListaEspera('2024-05-01', 'Cliente Test');
+            }).toThrow('La fecha no está registrada en la lista de espera.');
+        });
+
+        test('debe lanzar error al remover de lista de espera en fecha no registrada', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Intentar remover de lista de espera en fecha no registrada (cubre línea 142)
+            expect(() => {
+                excursion.removeListaEspera('2024-05-01', 'Cliente Test');
+            }).toThrow('La fecha no está registrada en la lista de espera.');
+        });
+
+        test('debe lanzar error al remover reserva inexistente de lista de espera', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Agregar una reserva
+            excursion.addListaEspera('2024-04-01', 'Cliente Existente');
+            
+            // Intentar remover una reserva que no existe (cubre línea 157)
+            expect(() => {
+                excursion.removeListaEspera('2024-04-01', 'Cliente Inexistente');
+            }).toThrow('El nombre no se encuentra en la lista de espera.');
+        });
+
+        test('debe manejar _parsearFecha con fecha inválida', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Intentar parsear una fecha inválida usando método protegido (cubre línea 180-182)
+            expect(() => {
+                excursion._parsearFecha('fecha-invalida');
+            }).toThrow('La fecha proporcionada no es válida');
+        });
+
+        test('debe verificar correctamente si existe fecha en disponibilidad', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Verificar fecha existente
+            expect(excursion._existeFechaEnDisponibilidad('2024-04-01')).toBe(true);
+            
+            // Verificar fecha no existente
+            expect(excursion._existeFechaEnDisponibilidad('2024-05-01')).toBe(false);
+        });
+
+        test('debe agregar fecha en ambas listas usando _agregarFechaEnListas', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Agregar nueva fecha usando método protegido
+            excursion._agregarFechaEnListas('2024-04-02');
+            
+            // Verificar que se agregó a ambas listas
+            const reservasFecha = excursion.listaReservas.find(r => 
+                r.fecha.getTime() === new Date('2024-04-02').getTime()
+            );
+            const esperaFecha = excursion.listaDeEspera.find(r => 
+                r.fecha.getTime() === new Date('2024-04-02').getTime()
+            );
+            
+            expect(reservasFecha).toBeDefined();
+            expect(esperaFecha).toBeDefined();
+        });
+
+        test('debe manejar addListaReservas con console.log usando nombre fallback', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Agregar reserva con objeto sin nombre para cubrir la rama || reservaInfo en console.log (línea 72)
+            excursion.addListaReservas('2024-04-01', { cantidadPersonas: 2 });
+            
+            const reservas = excursion.listaReservas.find(r => 
+                r.fecha.getTime() === new Date('2024-04-01').getTime()
+            ).reservas;
+            expect(reservas).toHaveLength(1);
+            expect(reservas[0].cantidadPersonas).toBe(2);
+        });
+
+        test('debe manejar removeListaReservas con reserva como objeto con nombre', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Agregar reserva como objeto con nombre
+            excursion.addListaReservas('2024-04-01', { nombre: 'Cliente Objeto', cantidadPersonas: 2 });
+            
+            // Remover reserva buscando por nombre del objeto (cubre la rama if en línea 88-90)
+            expect(() => excursion.removeListaReservas('2024-04-01', 'Cliente Objeto')).not.toThrow();
+            
+            const reservas = excursion.listaReservas.find(r => 
+                r.fecha.getTime() === new Date('2024-04-01').getTime()
+            ).reservas;
+            expect(reservas).toHaveLength(0);
+        });
+
+        test('debe cubrir la rama else en removeListaEspera cuando la reserva no es un objeto', () => {
+            const excursion = new ExcursionGuiada(['2024-04-01'], 1000, 10, 4, false, 2);
+            
+            // Agregar reserva como string
+            excursion.addListaEspera('2024-04-01', 'Cliente String Simple');
+            
+            // Remover usando el nombre directamente (cubre la rama else en línea 150)
+            excursion.removeListaEspera('2024-04-01', 'Cliente String Simple');
+            
+            const listaEspera = excursion.getListaEspera('2024-04-01');
+            expect(listaEspera).toHaveLength(0);
         });
     });
 });

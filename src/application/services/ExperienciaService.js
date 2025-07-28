@@ -107,9 +107,6 @@ export class ExperienciaService {
             throw new Error(`Tipo de estrategia no válido: ${tipoEstrategia}`);
         }
         
-        // Create strategy
-        const estrategia = ListaEsperaStrategyFactory.createStrategy(tipoEstrategia);
-        
         // Set strategy
         experiencia.setEstrategiaListaDeEspera(tipoEstrategia);
         

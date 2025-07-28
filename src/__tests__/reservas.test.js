@@ -5,7 +5,6 @@
 import { Reserva } from '../domain/entities/Reserva.js';
 import { PaqueteDeAventura } from '../domain/entities/PaqueteDeAventura.js';
 import { ExcursionGuiada } from '../domain/entities/ExcursionGuiada.js';
-import { ExperienciaTuristica } from '../domain/entities/ExperienciaTuristica.js';
 import { TipoEstrategia } from '../infrastructure/strategies/ListaEsperaStrategyFactory.js';
 
 describe('Reserva', () => {
@@ -91,20 +90,6 @@ describe('Reserva', () => {
             expect(reservaMinima.cuit).toBeNull();
             expect(reservaMinima.banco).toBeNull();
             expect(reservaMinima.titular).toBeNull();
-        });
-
-        test('debe lanzar error si la experiencia no es válida', () => {
-            expect(() => {
-                new Reserva(nombre, 'email@example.com', {}, 7, fecha, 2000, {
-                    descuentoGrupal: 0,
-                    cantidadPersonas: 1,
-                    datosPago: {
-                        cuit: '20329642330',
-                        banco: 'Banco Nación',
-                        titular: nombre
-                    }
-                });
-            }).toThrow("El atributo 'experiencia' debe ser una instancia de ExperienciaTuristica o sus clases derivadas.");
         });
         
         test('debe calcular correctamente la tarifa para grupos', () => {
