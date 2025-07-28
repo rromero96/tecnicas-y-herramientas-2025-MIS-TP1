@@ -120,6 +120,8 @@ Entre los refactorings
 
 ![Refactoring](refactoring.png)
 
+![SonarQube Report](SonarQube.png)
+
 ## Architectural Decision Records (ADRs)
 
 Este proyecto documenta las decisiones arquitectónicas importantes utilizando Architectural Decision Records (ADRs). Los ADRs proporcionan un registro histórico de las decisiones de diseño, incluyendo el contexto, las opciones consideradas y las consecuencias de cada decisión.
