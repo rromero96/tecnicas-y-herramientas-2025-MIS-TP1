@@ -5,7 +5,6 @@
 import { Reserva } from '../domain/entities/Reserva.js';
 import { PaqueteDeAventura } from '../domain/entities/PaqueteDeAventura.js';
 import { ExcursionGuiada } from '../domain/entities/ExcursionGuiada.js';
-import { ExperienciaTuristica } from '../domain/entities/ExperienciaTuristica.js';
 import { TipoEstrategia } from '../infrastructure/strategies/ListaEsperaStrategyFactory.js';
 
 describe('Reserva', () => {

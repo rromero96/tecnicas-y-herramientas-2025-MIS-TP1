@@ -5,13 +5,12 @@
 import { TipoEstrategia } from '../infrastructure/strategies/ListaEsperaStrategyFactory.js';
 import { ExcursionGuiada } from '../domain/entities/ExcursionGuiada.js';
 import { PaqueteDeAventura } from '../domain/entities/PaqueteDeAventura.js';
-import { EstrategiaCompletadoEficiente as ConcreteEstrategiaCompletadoEficiente } from '../infrastructure/strategies/EstrategiaCompletadoEficiente.js';
 import { ExperienciaTuristica as ExperienciaTuristicaAbstracta } from '../domain/entities/ExperienciaTuristica.js';
 
 describe('ExperienciaTuristica', () => {
     test('no se puede instanciar directamente', () => {
         expect(() => {
-            new ExperienciaTuristicaAbstracta([], 100, 10, 2, true, TipoEstrategia.DEFAULT);
+            new ExperienciaTuristicaAbstracta(['2024-04-01'], 100, 10, 2, true, TipoEstrategia.DEFAULT);
         }).toThrow("ExperienciaTuristica es una clase abstracta y no puede ser instanciada directamente.");
     });
 });
@@ -258,7 +257,6 @@ describe('PaqueteDeAventura', () => {
 });
 
 describe('Cobertura adicional y casos límite en Experiencias', () => {
-    const fecha = "2024-04-01";
     test('debe lanzar error al llamar métodos abstractos de la clase base', () => {
         // Crear una instancia mock de ExperienciaTuristica
         class MockExperiencia extends ExperienciaTuristicaAbstracta {

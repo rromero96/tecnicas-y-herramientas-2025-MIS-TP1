@@ -171,7 +171,7 @@ export class Facturacion {
                         typeof r === 'object' ? r.nombre === nombre : r === nombre
                     );
                     
-                    const cuposLiberados = reserva && reserva.cantidadPersonas ? reserva.cantidadPersonas : 1;
+                    const cuposLiberados = reserva?.cantidadPersonas ? reserva.cantidadPersonas : 1;
                     
                     // Obtener la lista de espera antes de cancelar
                     const listaEspera = this.experiencia.getListaEspera(fecha);

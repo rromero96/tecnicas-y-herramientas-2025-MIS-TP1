@@ -20,8 +20,7 @@ export class EstrategiaCompletadoEficiente extends ListaEsperaStrategy {
         );
         
         // Buscar el grupo más grande que quepa en los cupos liberados
-        for (let i = 0; i < listaOrdenada.length; i++) {
-            const reservaInfo = listaOrdenada[i];
+        for (let reservaInfo of listaOrdenada) {
             const cantidadPersonas = reservaInfo.cantidadPersonas || 1; // Default a 1 si no está definida
             
             if (cantidadPersonas <= cuposRestantes) {
